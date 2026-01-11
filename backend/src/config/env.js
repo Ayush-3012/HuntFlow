@@ -12,6 +12,7 @@ const config = {
   mongoUri: process.env.MONGO_URI,
   sendGrid: process.env.SENDGRID_API_KEY,
   sendGridEmail: process.env.SENDGRID_FROM_EMAIL,
+  openrouterkey: process.env.OPENROUTER_API_KEY,
 };
 
 export default config;

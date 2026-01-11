@@ -34,7 +34,7 @@ const timelineEventSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-export const timelineEvent = mongoose.model(
+export const TimelineEvent = mongoose.model(
   "TimelineEvent",
   timelineEventSchema
 );

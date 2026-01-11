@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export const fileUrlToBase64 = async (fileUrl) => {
+export const fetchFileFromURL = async (fileUrl) => {
   const response = await axios.get(fileUrl, {
     responseType: "arraybuffer",
     maxRedirects: 5,
@@ -9,6 +9,5 @@ export const fileUrlToBase64 = async (fileUrl) => {
     },
   });
 
-  const buffer = Buffer.from(response.data);
-  return buffer.toString("base64");
+  return Buffer.from(response.data);
 };

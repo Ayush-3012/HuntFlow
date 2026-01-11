@@ -1,4 +1,4 @@
-import { timelineEvent } from "../models/timelineEvent.model.js";
+import { TimelineEvent } from "../models/timelineEvent.model.js";
 import { successResponse } from "../utils/response.util.js";
 
 /**
@@ -12,7 +12,7 @@ export const createTimelineEvent = async ({
 }) => {
   if (!applicationId || !type) return;
 
-  await timelineEvent.create({
+  await TimelineEvent.create({
     applicationId,
     type,
     payload,
@@ -32,9 +32,9 @@ export const getApplicationTimeline = async (req, res, next) => {
       throw error;
     }
 
-    const events = await timelineEvent
-      .find({ applicationId })
-      .sort({ createdAt: 1 });
+    const events = await TimelineEvent.find({ applicationId }).sort({
+      createdAt: 1,
+    });
 
     return res.status(200).json(successResponse("Timeline fetched", events));
   } catch (error) {

@@ -2,7 +2,7 @@ import { Application } from "../models/application.model.js";
 import { Mail } from "../models/mail.model.js";
 import { ResumeVersion } from "../models/resumeVersion.model.js";
 import { sendMailService } from "../services/mail.service.js";
-import { fileUrlToBase64 } from "../utils/attachment.util.js";
+import { fetchFileFromURL } from "../utils/fetchFileBuffer.util.js";
 import { successResponse } from "../utils/response.util.js";
 import { createTimelineEvent } from "./timeline.controller.js";
 
@@ -80,7 +80,8 @@ export const sendMail = async (req, res, next) => {
     }
 
     try {
-      const resumeBase64 = await fileUrlToBase64(resumeVersion.fileUrl);
+      const buffer = await fetchFileFromURL(resumeVersion.fileUrl);
+      const resumeBase64 = buffer.toString("base64");
 
       const { providerMessageId } = await sendMailService({
         to: foundMail.to,

@@ -1,13 +1,13 @@
 import { Application } from "../models/application.model.js";
 import { Job } from "../models/job.model.js";
 import { ResumeVersion } from "../models/resumeVersion.model.js";
+import { TimelineEvent } from "../models/timelineEvent.model.js";
 import { successResponse } from "../utils/response.util.js";
-import { createTimelineEvent } from "./timeline.controller.js";
+import {
+  createTimelineEvent,
+  getApplicationTimeline,
+} from "./timeline.controller.js";
 
-/**
- * Create Application
- * Default status: Saved
- */
 export const createApplication = async (req, res, next) => {
   try {
     const { jobId, versionId } = req.body;
@@ -71,9 +71,25 @@ export const getApplication = async (req, res, next) => {
       throw error;
     }
 
-    return res
-      .status(200)
-      .json(successResponse("Application found", foundApplication));
+    const timelineEvents = await TimelineEvent.find({
+      applicationId: foundApplication._id,
+    }).sort({
+      createdAt: 1,
+    });
+
+    const suggestion = suggestStatusFromTimeline(
+      timelineEvents,
+      foundApplication.status
+    );
+
+    return res.status(200).json(
+      successResponse({
+        message: "Application found",
+        application: foundApplication,
+        timeline: timelineEvents,
+        suggestedStatus: suggestion,
+      })
+    );
   } catch (error) {
     next(error);
   }
@@ -112,6 +128,7 @@ export const updateApplicationStatus = async (req, res, next) => {
     const allowedStatuses = [
       "Saved",
       "Applied",
+      "Shortlisted",
       "Interviewed",
       "Selected",
       "Rejected",
