@@ -1,3 +1,5 @@
+import dotenv from "dotenv";
+dotenv.config();
 const requiredEnvVars = ["PORT"];
 
 requiredEnvVars.forEach((key) => {
@@ -10,8 +12,10 @@ const config = {
   port: Number(process.env.PORT),
   nodeEnv: process.env.NODE_ENV || "development",
   mongoUri: process.env.MONGO_URI,
+
   sendGrid: process.env.SENDGRID_API_KEY,
   sendGridEmail: process.env.SENDGRID_FROM_EMAIL,
+
   openrouterkey: process.env.OPENROUTER_API_KEY,
 };
 
