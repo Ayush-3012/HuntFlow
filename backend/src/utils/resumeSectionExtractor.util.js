@@ -14,7 +14,7 @@ function extractSection(text, startLabel, endLabels = []) {
     return "";
   }
 
-  console.log(`✅ Found "${startLabel}" at position ${match.index}`);
+  // console.log(`✅ Found "${startLabel}" at position ${match.index}`);
 
   let startIndex = match.index + match[0].length;
 
@@ -33,7 +33,7 @@ function extractSection(text, startLabel, endLabels = []) {
       const absoluteIndex = startIndex + endMatch.index;
       if (absoluteIndex < endIndex) {
         endIndex = absoluteIndex;
-        console.log(`   Ending at "${label}" (position ${absoluteIndex})`);
+        // console.log(`   Ending at "${label}" (position ${absoluteIndex})`);
       }
     }
   });

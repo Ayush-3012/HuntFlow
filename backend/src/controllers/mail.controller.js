@@ -2,6 +2,7 @@ import { Application } from "../models/application.model.js";
 import { Mail } from "../models/mail.model.js";
 import { ResumeVersion } from "../models/resumeVersion.model.js";
 import { sendMailService } from "../services/mail.service.js";
+import { createMailDraftService } from "../services/mailDraft.service.js";
 import { fetchFileFromURL } from "../utils/fetchFileBuffer.util.js";
 import { successResponse } from "../utils/response.util.js";
 import { createTimelineEvent } from "./timeline.controller.js";
@@ -22,12 +23,11 @@ export const createMailDraft = async (req, res, next) => {
       throw error;
     }
 
-    const newMail = await Mail.create({
+    const newMail = await createMailDraftService({
       applicationId,
       to,
       subject,
       body,
-      status: "DRAFT",
     });
 
     createTimelineEvent({
@@ -62,7 +62,7 @@ export const sendMail = async (req, res, next) => {
     }
 
     const foundApplication = await Application.findById(
-      foundMail.applicationId
+      foundMail.applicationId,
     );
     if (!foundApplication) {
       const error = new Error("Application not found");
@@ -71,7 +71,7 @@ export const sendMail = async (req, res, next) => {
     }
 
     const resumeVersion = await ResumeVersion.findById(
-      foundApplication.versionId
+      foundApplication.versionId,
     );
     if (!resumeVersion) {
       const error = new Error("Resume version not found");

@@ -169,16 +169,60 @@ OUTPUT FORMAT:
   });
 };
 
-export const generateMail = async (input) => {
+export const generateMail = async ({ jobProfile,
+  jobCompany,
+  overview,
+  resumeUrl,}) => {
+  const prompt = `
+Write a concise professional job application email.
+
+STRICT RULES:
+- Tone must be polite, confident, and professional.
+- Mention the role and company naturally.
+- Use ONLY the provided overview as candidate background.
+- Do NOT invent experience or skills.
+- Maximum 120 words.
+- Plain text only.
+- No placeholders, no brackets, no markdown.
+
+ROLE: ${jobProfile}
+COMPANY: ${jobCompany}
+
+CANDIDATE OVERVIEW:
+${overview}
+
+RESUME LINK:
+${resumeUrl}
+`;
+
   return generateText({
     system: "You write professional recruitment emails",
-    prompt: input,
+    prompt,
   });
 };
 
-export const generateColdMessage = async (input) => {
+export const generateColdMessage = async ({jobProfile,
+  jobCompany,
+  overview}) => {
+  const prompt = `Write a short LinkedIn cold outreach message.
+
+STRICT RULES:
+- 2–3 sentences maximum.
+- Friendly but professional tone.
+- Mention the role and company.
+- Use ONLY the provided overview.
+- Do NOT invent experience.
+- Plain text only.
+- No emojis, no markdown, no placeholders.
+
+ROLE: ${jobProfile}
+COMPANY: ${jobCompany}
+
+CANDIDATE OVERVIEW:
+${overview}`;
+
   return generateText({
     system: "You write short LinkedIn cold outreach messages.",
-    prompt: input,
+    prompt,
   });
 };

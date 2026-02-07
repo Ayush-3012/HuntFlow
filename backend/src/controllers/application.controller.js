@@ -2,6 +2,7 @@ import { Application } from "../models/application.model.js";
 import { Job } from "../models/job.model.js";
 import { ResumeVersion } from "../models/resumeVersion.model.js";
 import { TimelineEvent } from "../models/timelineEvent.model.js";
+import { createApplicationService } from "../services/application.service.js";
 import { successResponse } from "../utils/response.util.js";
 import {
   createTimelineEvent,
@@ -32,11 +33,7 @@ export const createApplication = async (req, res, next) => {
       throw error;
     }
 
-    const newApplication = await Application.create({
-      jobId,
-      versionId,
-      status: "Saved",
-    });
+    const newApplication = await createApplicationService({ jobId, versionId });
 
     createTimelineEvent({
       applicationId: newApplication._id,
@@ -79,7 +76,7 @@ export const getApplication = async (req, res, next) => {
 
     const suggestion = suggestStatusFromTimeline(
       timelineEvents,
-      foundApplication.status
+      foundApplication.status,
     );
 
     return res.status(200).json(
@@ -88,7 +85,7 @@ export const getApplication = async (req, res, next) => {
         application: foundApplication,
         timeline: timelineEvents,
         suggestedStatus: suggestion,
-      })
+      }),
     );
   } catch (error) {
     next(error);
@@ -169,7 +166,7 @@ export const updateApplicationStatus = async (req, res, next) => {
       applicationId: foundApplication._id,
       type: "STATUS_UPDATED",
       payload: {
-        from: oldStatus,
+        from: foundApplication.status,
         to: status,
       },
     }).catch(console.error);

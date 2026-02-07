@@ -31,7 +31,7 @@ export async function tailorResume({ baseResumeText, jobDescriptionText }) {
       baseResumeText,
       jobDescriptionText,
     });
-    console.log("✅ Generated overview");
+    // console.log("✅ Generated overview");
   } catch (error) {
     console.error("❌ Overview generation failed:", error.message);
   }
@@ -41,7 +41,7 @@ export async function tailorResume({ baseResumeText, jobDescriptionText }) {
       skillsText,
       jobDescriptionText,
     });
-    console.log("✅ Aligned skills");
+    // console.log("✅ Aligned skills");
   } catch (error) {
     console.error("❌ Skills alignment failed:", error.message);
   }
@@ -51,7 +51,7 @@ export async function tailorResume({ baseResumeText, jobDescriptionText }) {
     projects = await getJDAlignedProjects({
       jobDescriptionText,
     });
-    console.log(`✅ Selected ${projects.length} projects`);
+    // console.log(`✅ Selected ${projects.length} projects`);
   } catch (error) {
     console.error("❌ Project selection failed:", error.message);
   }

@@ -1,10 +1,11 @@
 import { extractTextFromPdfBuffer } from "../utils/pdfTextExtractor.util.js";
-import path from "path";
 import { fetchFileFromURL } from "../utils/fetchFileBuffer.util.js";
-import fs from "fs";
 import { generateResumePdf } from "../services/resumePdfGenerator.service.js";
 import { tailorResume } from "../services/tailorResume.service.js";
 import { userProfile } from "../data/userProfile.js";
+import { Resume } from "../models/resume.model.js";
+import { getNextResumeVersion } from "../services/resumeVersion.service.js";
+import { uploadResumePdf } from "../services/s3ResumeUpload.service.js";
 
 export const healthController = async (req, res) => {
   const resumeUrl =
@@ -15,8 +16,10 @@ export const healthController = async (req, res) => {
   const buffer = await fetchFileFromURL(resumeUrl);
   const baseResumeText = await extractTextFromPdfBuffer(buffer);
 
+  console.log("✅ Tailoring Resume");
   const tailored = await tailorResume({ baseResumeText, jobDescriptionText });
 
+  console.log("✅ Generating PDF");
   const pdfBuffer = await generateResumePdf({
     user: userProfile,
     overview: tailored.overview,
@@ -27,15 +30,25 @@ export const healthController = async (req, res) => {
     certificationsText: tailored.certificationsText,
   });
 
-  // const resumeDir = path.join(process.cwd(), "resumes");
-  // if (!fs.existsSync(resumeDir)) {
-  //   fs.mkdirSync(resumeDir);
-  //   console.log("creatds");
-  // }
+  const mainResume = await Resume.find({});
+  const resumeId = mainResume[0]._id.toString();
 
-  fs.writeFileSync("text-X.pdf", pdfBuffer);
+  console.log("✅ Getting Next resume Version");
+  const version = await getNextResumeVersion(resumeId);
+
+  console.log("✅ Uploading resume to aws");
+  const fileUrl = await uploadResumePdf({
+    resumeId,
+    version,
+    pdfBuffer,
+  });
+
+  console.log("✅ File Url of new generated resume");
   res.json({
     success: true,
-    message: "pdf generated",
+    message: "Resume generated & stored",
+    data: {
+      fileUrl: fileUrl,
+    },
   });
 };

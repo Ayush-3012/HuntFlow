@@ -1,5 +1,6 @@
 import { Resume } from "../models/resume.model.js";
 import { ResumeVersion } from "../models/resumeVersion.model.js";
+import { createResumeVersionService } from "../services/resumeVersion.service.js";
 import { successResponse } from "../utils/response.util.js";
 
 export const createResume = async (req, res, next) => {
@@ -55,7 +56,7 @@ export const createResumeVersion = async (req, res, next) => {
       throw error;
     }
 
-    const newVersion = await ResumeVersion.create({
+    const newVersion = await createResumeVersionService({
       resumeId,
       version,
       fileUrl,
