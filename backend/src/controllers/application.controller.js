@@ -3,6 +3,7 @@ import { Job } from "../models/job.model.js";
 import { ResumeVersion } from "../models/resumeVersion.model.js";
 import { TimelineEvent } from "../models/timelineEvent.model.js";
 import { createApplicationService } from "../services/application.service.js";
+import { suggestStatusFromTimeline } from "../services/statusSuggestion.service.js";
 import { successResponse } from "../utils/response.util.js";
 import {
   createTimelineEvent,
@@ -79,14 +80,15 @@ export const getApplication = async (req, res, next) => {
       foundApplication.status,
     );
 
-    return res.status(200).json(
-      successResponse({
-        message: "Application found",
-        application: foundApplication,
-        timeline: timelineEvents,
-        suggestedStatus: suggestion,
-      }),
-    );
+    return res
+      .status(200)
+      .json(
+        successResponse("Application found", {
+          application: foundApplication,
+          timeline: timelineEvents,
+          suggestedStatus: suggestion,
+        }),
+      );
   } catch (error) {
     next(error);
   }

@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { LayoutDashboard, Briefcase, FileText, Settings } from "lucide-react";
 
 const navItems = [
@@ -9,6 +12,8 @@ const navItems = [
 ];
 
 export default function Sidebar() {
+  const pathname = usePathname();
+
   return (
     <aside className="w-64 bg-white border-r h-full p-4">
       <h2 className="text-xl font-semibold mb-6">HuntFlow</h2>
@@ -20,7 +25,11 @@ export default function Sidebar() {
             <Link
               key={item.name}
               href={item.href}
-              className="flex items-center gap-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-gray-100"
+              className={`flex items-center gap-3 px-3 py-2 rounded-lg transition ${
+                pathname.startsWith(item.href)
+                  ? "bg-blue-50 text-blue-700"
+                  : "text-gray-700 hover:bg-gray-100"
+              }`}
             >
               <Icon size={18} />
               {item.name}
