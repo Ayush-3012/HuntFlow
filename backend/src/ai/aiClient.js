@@ -204,16 +204,20 @@ ${resumeUrl}
 export const generateColdMessage = async ({jobProfile,
   jobCompany,
   overview}) => {
-  const prompt = `Write a short LinkedIn cold outreach message.
+  const prompt = `Write a short LinkedIn outreach message where the SENDER is a job seeker reaching out about a role.
 
 STRICT RULES:
-- 2–3 sentences maximum.
-- Friendly but professional tone.
-- Mention the role and company.
-- Use ONLY the provided overview.
-- Do NOT invent experience.
-- Plain text only.
-- No emojis, no markdown, no placeholders.
+- 2–3 sentences maximum
+- Friendly but professional
+- The sender is interested in the role
+- Do NOT sound like a recruiter
+- Do NOT offer jobs
+- Mention the role and company
+- Use ONLY the provided overview
+- Do NOT invent experience
+- Plain text only
+- No emojis
+- No placeholders
 
 ROLE: ${jobProfile}
 COMPANY: ${jobCompany}
@@ -222,7 +226,7 @@ CANDIDATE OVERVIEW:
 ${overview}`;
 
   return generateText({
-    system: "You write short LinkedIn cold outreach messages.",
+    system: "You help job seekers write short LinkedIn messages to recruiters about roles they are interested in.",
     prompt,
   });
 };

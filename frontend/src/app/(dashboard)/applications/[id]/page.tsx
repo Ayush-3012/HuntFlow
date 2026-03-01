@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import {
+  deleteApplication,
   fetchApplicationById,
   updateApplicationStatus,
 } from "@/lib/api/application";
@@ -38,6 +39,7 @@ function StatusBadge({ status }: { status: ApplicationStatus }) {
 
 export default function ApplicationDetailPage() {
   const params = useParams<{ id: string }>();
+  const router = useRouter();
   const [application, setApplication] = useState<Application | null>(null);
   const [timeline, setTimeline] = useState<TimelineEvent[]>([]);
   const [selectedStatus, setSelectedStatus] = useState<ApplicationStatus>("Saved");
@@ -45,6 +47,7 @@ export default function ApplicationDetailPage() {
   const [suggestionReason, setSuggestionReason] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -95,6 +98,24 @@ export default function ApplicationDetailPage() {
       setError("Unable to update status. Please try again.");
     } finally {
       setUpdating(false);
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!application || deleting) return;
+    const shouldDelete = window.confirm(
+      "Delete this application and all related data (mails/messages/timeline + linked resume version if unused)?",
+    );
+    if (!shouldDelete) return;
+
+    setDeleting(true);
+    setError(null);
+    try {
+      await deleteApplication(application._id);
+      router.push("/dashboard");
+    } catch {
+      setError("Unable to delete application. Please try again.");
+      setDeleting(false);
     }
   };
 
@@ -185,6 +206,16 @@ export default function ApplicationDetailPage() {
             </p>
           ) : null}
           {error ? <p className="text-xs text-red-600">{error}</p> : null}
+        </div>
+        <div className="border-t pt-4">
+          <button
+            type="button"
+            onClick={handleDelete}
+            disabled={deleting}
+            className="text-sm text-red-600 hover:underline disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            {deleting ? "Deleting..." : "Delete Application"}
+          </button>
         </div>
       </div>
 

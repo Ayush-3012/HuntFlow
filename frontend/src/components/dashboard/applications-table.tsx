@@ -26,9 +26,15 @@ function StatusBadge({ status }: { status: ApplicationStatus }) {
 
 type ApplicationsTableProps = {
   applications: Application[];
+  onDelete?: (application: Application) => Promise<void> | void;
+  deletingId?: string | null;
 };
 
-export default function ApplicationsTable({ applications }: ApplicationsTableProps) {
+export default function ApplicationsTable({
+  applications,
+  onDelete,
+  deletingId,
+}: ApplicationsTableProps) {
   const [sortBy, setSortBy] = useState<"company" | "role" | "resume" | "status" | "updatedAt">("updatedAt");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
 
@@ -104,6 +110,7 @@ export default function ApplicationsTable({ applications }: ApplicationsTablePro
                 </button>
               </th>
               <th className="text-left px-6 py-3">Details</th>
+              <th className="text-left px-6 py-3">Actions</th>
             </tr>
           </thead>
 
@@ -128,6 +135,16 @@ export default function ApplicationsTable({ applications }: ApplicationsTablePro
                   <Link href={`/applications/${app._id}`} className="text-blue-600 hover:underline">
                     Open
                   </Link>
+                </td>
+                <td className="px-6 py-4">
+                  <button
+                    type="button"
+                    disabled={!onDelete || deletingId === app._id}
+                    onClick={() => onDelete?.(app)}
+                    className="text-red-600 hover:underline disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    {deletingId === app._id ? "Deleting..." : "Delete"}
+                  </button>
                 </td>
               </tr>
             ))}

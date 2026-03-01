@@ -1,8 +1,11 @@
 import { Application } from "../models/application.model.js";
+import { Mail } from "../models/mail.model.js";
+import { ColdMessage } from "../models/message.model.js";
 import { Job } from "../models/job.model.js";
 import { ResumeVersion } from "../models/resumeVersion.model.js";
 import { TimelineEvent } from "../models/timelineEvent.model.js";
 import { createApplicationService } from "../services/application.service.js";
+import { deleteResumePdfByUrl } from "../services/s3ResumeDelete.service.js";
 import { suggestStatusFromTimeline } from "../services/statusSuggestion.service.js";
 import { successResponse } from "../utils/response.util.js";
 import {
@@ -224,6 +227,68 @@ export const updateApplicationResumeVersion = async (req, res, next) => {
     return res
       .status(200)
       .json(successResponse("Resume version updated", foundApplication));
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteApplication = async (req, res, next) => {
+  try {
+    const foundApplication = await Application.findById(req.params.id);
+    if (!foundApplication) {
+      const error = new Error("Application not found");
+      error.statusCode = 404;
+      throw error;
+    }
+
+    const applicationId = foundApplication._id;
+    const versionId = foundApplication.versionId;
+    let resumeVersionDeleted = false;
+    let resumeFileDeleted = false;
+
+    if (versionId) {
+      const versionStillUsed = await Application.exists({
+        _id: { $ne: applicationId },
+        versionId,
+      });
+
+      if (!versionStillUsed) {
+        const resumeVersion = await ResumeVersion.findById(versionId);
+        if (resumeVersion?.fileUrl) {
+          try {
+            await deleteResumePdfByUrl(resumeVersion.fileUrl);
+            resumeFileDeleted = true;
+          } catch (deleteFileError) {
+            console.error("Failed to delete resume file from S3", deleteFileError);
+          }
+        }
+
+        await ResumeVersion.findByIdAndDelete(versionId);
+        resumeVersionDeleted = true;
+      }
+    }
+
+    const [mailDeleteResult, messageDeleteResult, timelineDeleteResult] =
+      await Promise.all([
+        Mail.deleteMany({ applicationId }),
+        ColdMessage.deleteMany({ applicationId }),
+        TimelineEvent.deleteMany({ applicationId }),
+      ]);
+
+    await Application.findByIdAndDelete(applicationId);
+
+    return res.status(200).json(
+      successResponse("Application and related data deleted", {
+        applicationId,
+        deleted: {
+          mails: mailDeleteResult.deletedCount,
+          messages: messageDeleteResult.deletedCount,
+          timelineEvents: timelineDeleteResult.deletedCount,
+          resumeVersion: resumeVersionDeleted,
+          resumeFile: resumeFileDeleted,
+        },
+      }),
+    );
   } catch (error) {
     next(error);
   }

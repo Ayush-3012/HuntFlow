@@ -8,7 +8,7 @@ export async function generateText({ prompt, system }) {
     const response = await axios.post(
       API_URL,
       {
-        model: "mistralai/mistral-7b-instruct",
+        model: "openai/gpt-4o-mini",
         messages: [
           { role: "system", content: system },
           { role: "user", content: prompt },

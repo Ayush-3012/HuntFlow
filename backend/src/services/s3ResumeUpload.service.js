@@ -10,7 +10,8 @@ export const uploadResumePdf = async ({ resumeId, version, pdfBuffer }) => {
       Bucket: config.bucket,
       Key: key,
       Body: pdfBuffer,
-      contentType: "application/pdf",
+      ContentType: "application/pdf",
+      ContentDisposition: "inline",
     }),
   );
 

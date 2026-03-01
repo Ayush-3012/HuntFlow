@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { fetchMails, sendMail } from "@/lib/api/mail";
 import { MailRecord } from "@/types/application";
+import { X } from "lucide-react";
 
 type MailSortKey = "company" | "role" | "to" | "subject" | "status" | "updatedAt";
 
@@ -193,9 +194,9 @@ export default function MailsPage() {
               <button
                 type="button"
                 onClick={() => setPreviewMail(null)}
-                className="text-sm text-gray-500 hover:text-gray-700"
+                className="text-sm cursor-pointer text-gray-500 hover:text-gray-700"
               >
-                Close
+                <X />
               </button>
             </div>
             <div className="space-y-3 px-5 py-4 text-sm">

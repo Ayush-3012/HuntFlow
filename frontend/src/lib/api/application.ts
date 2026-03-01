@@ -33,6 +33,13 @@ export async function updateApplicationStatus(
   return res.data.data ?? res.data;
 }
 
+export async function deleteApplication(
+  applicationId: string
+): Promise<{ applicationId: string }> {
+  const res = await api.delete(`/applications/${applicationId}`);
+  return res.data.data ?? res.data;
+}
+
 export type GeneratedApplicationResult = {
   applicationId: string;
   resumeVersion: {

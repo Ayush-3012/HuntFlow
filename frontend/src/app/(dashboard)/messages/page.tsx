@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { fetchMessages } from "@/lib/api/message";
 import { ColdMessageRecord } from "@/types/application";
+import { X } from "lucide-react";
 
 type MessageSortKey = "company" | "role" | "message" | "updatedAt";
 
@@ -11,6 +12,7 @@ export default function MessagesPage() {
   const [messages, setMessages] = useState<ColdMessageRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [previewMessage, setPreviewMessage] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<MessageSortKey>("updatedAt");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
 
@@ -110,10 +112,15 @@ export default function MessagesPage() {
                 <tr key={item._id} className="border-t hover:bg-gray-50 align-top">
                   <td className="px-6 py-4 font-medium">{item.applicationId?.jobId?.jobCompany ?? "N/A"}</td>
                   <td className="px-6 py-4">{item.applicationId?.jobId?.jobProfile ?? "N/A"}</td>
-                  <td className="px-6 py-4 max-w-[520px]">
-                    <p className="text-gray-700 whitespace-pre-wrap max-h-28 overflow-y-auto pr-1">
-                      {item.message}
-                    </p>
+                  <td className="px-6 py-4 max-w-64">
+                    <p className="text-gray-700 line-clamp-2">{item.message}</p>
+                    <button
+                      type="button"
+                      onClick={() => setPreviewMessage(item.message)}
+                      className="mt-2 text-xs text-blue-600 hover:underline"
+                    >
+                      View full
+                    </button>
                   </td>
                   <td className="px-6 py-4 text-gray-500">{new Date(item.updatedAt).toLocaleDateString()}</td>
                   <td className="px-6 py-4">
@@ -131,6 +138,29 @@ export default function MessagesPage() {
           </table>
         )}
       </div>
+        {previewMessage ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
+          <div className="w-full max-w-2xl rounded-xl bg-white shadow-xl">
+            <div className="flex items-center justify-between border-b px-5 py-4">
+              <h2 className="font-semibold">Message Preview</h2>
+              <button
+                type="button"
+                onClick={() => setPreviewMessage(null)}
+                className="text-sm text-gray-500 cursor-pointer hover:text-gray-700"
+              >
+                <X />
+              </button>
+            </div>
+            <div className="space-y-3 px-5 py-4 text-sm">
+              <div>
+                <p className="whitespace-pre-wrap text-gray-700 max-h-[50vh] overflow-y-auto pr-1">
+                  {previewMessage}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
