@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import StatsCards from "@/components/dashboard/stats-cards";
-import InsightBanner from "@/components/dashboard/insight-banner";
 import ApplicationsTable from "@/components/dashboard/applications-table";
 import RightPanel from "@/components/dashboard/right-panel";
 import { fetchApplications } from "@/lib/api/application";
@@ -49,7 +48,6 @@ export default function DashboardPage() {
       {/* LEFT */}
       <div className="lg:col-span-2 space-y-6">
         <StatsCards applications={applications} />
-        <InsightBanner />
         <ApplicationsTable applications={applications} />
       </div>
 

@@ -2,6 +2,7 @@ import { api } from "../axios";
 import {
   Application,
   ApplicationStatus,
+  ColdMessageRecord,
   StatusSuggestion,
   TimelineEvent,
 } from "@/types/application";
@@ -29,5 +30,29 @@ export async function updateApplicationStatus(
   status: ApplicationStatus
 ): Promise<Application> {
   const res = await api.put(`/applications/${applicationId}/status`, { status });
+  return res.data.data ?? res.data;
+}
+
+export type GeneratedApplicationResult = {
+  applicationId: string;
+  resumeVersion: {
+    id: string;
+    version: string;
+    fileUrl: string;
+  };
+  mailDraft: {
+    _id: string;
+    to: string;
+    subject: string;
+    body: string;
+  } | null;
+  coldMessage: ColdMessageRecord | null;
+};
+
+export async function generateApplicationWithAI(payload: {
+  jobId: string;
+  resumeId: string;
+}): Promise<GeneratedApplicationResult> {
+  const res = await api.post("/main/generate", payload);
   return res.data.data ?? res.data;
 }

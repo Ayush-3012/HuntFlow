@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+import { useMemo, useState } from "react";
 import { Application, ApplicationStatus } from "@/types/application";
 
 function StatusBadge({ status }: { status: ApplicationStatus }) {
@@ -27,10 +29,42 @@ type ApplicationsTableProps = {
 };
 
 export default function ApplicationsTable({ applications }: ApplicationsTableProps) {
+  const [sortBy, setSortBy] = useState<"company" | "role" | "resume" | "status" | "updatedAt">("updatedAt");
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
 
-  const sortedApps = [...applications].sort(
-  (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
-);
+  const sortIndicator = (key: "company" | "role" | "resume" | "status" | "updatedAt") => {
+    if (sortBy !== key) return "↕";
+    return sortDir === "asc" ? "▲" : "▼";
+  };
+
+  const handleSort = (key: "company" | "role" | "resume" | "status" | "updatedAt") => {
+    if (sortBy === key) {
+      setSortDir((prev) => (prev === "asc" ? "desc" : "asc"));
+      return;
+    }
+
+    setSortBy(key);
+    setSortDir("asc");
+  };
+
+  const sortedApps = useMemo(() => {
+    const getValue = (app: Application) => {
+      if (sortBy === "company") return app.jobId.jobCompany.toLowerCase();
+      if (sortBy === "role") return app.jobId.jobProfile.toLowerCase();
+      if (sortBy === "resume") return (app.versionId?.version ?? "").toLowerCase();
+      if (sortBy === "status") return app.status.toLowerCase();
+      return new Date(app.updatedAt).getTime();
+    };
+
+    return [...applications].sort((a, b) => {
+      const aValue = getValue(a);
+      const bValue = getValue(b);
+
+      if (aValue === bValue) return 0;
+      const result = aValue > bValue ? 1 : -1;
+      return sortDir === "asc" ? result : -result;
+    });
+  }, [applications, sortBy, sortDir]);
 
   return (
     <div className="bg-white border rounded-xl shadow-sm overflow-hidden">
@@ -44,11 +78,32 @@ export default function ApplicationsTable({ applications }: ApplicationsTablePro
         <table className="w-full text-sm">
           <thead className="bg-gray-50 text-gray-600">
             <tr>
-              <th className="text-left px-6 py-3">Company</th>
-              <th className="text-left px-6 py-3">Role</th>
-              <th className="text-left px-6 py-3">Resume</th>
-              <th className="text-left px-6 py-3">Status</th>
-              <th className="text-left px-6 py-3">Last Activity</th>
+              <th className="text-left px-6 py-3">
+                <button className="font-medium hover:underline inline-flex items-center gap-1" onClick={() => handleSort("company")}>
+                  Company <span className="text-xs text-gray-500">{sortIndicator("company")}</span>
+                </button>
+              </th>
+              <th className="text-left px-6 py-3">
+                <button className="font-medium hover:underline inline-flex items-center gap-1" onClick={() => handleSort("role")}>
+                  Role <span className="text-xs text-gray-500">{sortIndicator("role")}</span>
+                </button>
+              </th>
+              <th className="text-left px-6 py-3">
+                <button className="font-medium hover:underline inline-flex items-center gap-1" onClick={() => handleSort("resume")}>
+                  Resume <span className="text-xs text-gray-500">{sortIndicator("resume")}</span>
+                </button>
+              </th>
+              <th className="text-left px-6 py-3">
+                <button className="font-medium hover:underline inline-flex items-center gap-1" onClick={() => handleSort("status")}>
+                  Status <span className="text-xs text-gray-500">{sortIndicator("status")}</span>
+                </button>
+              </th>
+              <th className="text-left px-6 py-3">
+                <button className="font-medium hover:underline inline-flex items-center gap-1" onClick={() => handleSort("updatedAt")}>
+                  Last Activity <span className="text-xs text-gray-500">{sortIndicator("updatedAt")}</span>
+                </button>
+              </th>
+              <th className="text-left px-6 py-3">Details</th>
             </tr>
           </thead>
 
@@ -68,6 +123,11 @@ export default function ApplicationsTable({ applications }: ApplicationsTablePro
                 </td>
                 <td className="px-6 py-4 text-gray-500">
                   {new Date(app.updatedAt).toLocaleDateString()}
+                </td>
+                <td className="px-6 py-4">
+                  <Link href={`/applications/${app._id}`} className="text-blue-600 hover:underline">
+                    Open
+                  </Link>
                 </td>
               </tr>
             ))}

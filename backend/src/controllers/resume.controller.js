@@ -25,7 +25,7 @@ export const createResume = async (req, res, next) => {
 
 export const listResumes = async (req, res, next) => {
   try {
-    const resumes = await resume.find({});
+    const resumes = await Resume.find({});
 
     return res
       .status(200)

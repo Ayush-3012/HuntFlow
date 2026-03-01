@@ -46,6 +46,47 @@ export const createMailDraft = async (req, res, next) => {
   }
 };
 
+export const listMails = async (req, res, next) => {
+  try {
+    const { applicationId } = req.query;
+    const filter = {};
+
+    if (applicationId) {
+      filter.applicationId = applicationId;
+    }
+
+    const mails = await Mail.find(filter)
+      .populate({
+        path: "applicationId",
+        populate: [{ path: "jobId" }, { path: "versionId" }],
+      })
+      .sort({ updatedAt: -1 });
+
+    return res.status(200).json(successResponse("Mails fetched", mails));
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getMail = async (req, res, next) => {
+  try {
+    const mail = await Mail.findById(req.params.id).populate({
+      path: "applicationId",
+      populate: [{ path: "jobId" }, { path: "versionId" }],
+    });
+
+    if (!mail) {
+      const error = new Error("Mail not found");
+      error.statusCode = 404;
+      throw error;
+    }
+
+    return res.status(200).json(successResponse("Mail fetched", mail));
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const sendMail = async (req, res, next) => {
   try {
     const foundMail = await Mail.findById(req.params.id);

@@ -26,6 +26,7 @@ import jobRouter from "./routes/job.routes.js";
 import resumeRouter from "./routes/resume.routes.js";
 import applicationRouter from "./routes/application.routes.js";
 import mailRouter from "./routes/mail.routes.js";
+import messageRouter from "./routes/message.routes.js";
 import webHookRouter from "./routes/webhook.routes.js";
 // import healthRouter from "./routes/health.routes.js";
 import mainRouter from "./routes/main.routes.js";
@@ -36,6 +37,7 @@ app.use("/api/jobs", jobRouter);
 app.use("/api/resumes", resumeRouter);
 app.use("/api/applications", applicationRouter);
 app.use("/api/mails", mailRouter);
+app.use("/api/messages", messageRouter);
 app.use("/webhooks", upload.none(), webHookRouter);
 
 app.use(notFoundMiddleware);

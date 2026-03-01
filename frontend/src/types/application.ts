@@ -36,6 +36,13 @@ export interface Application {
   updatedAt: string;
 }
 
+export interface Resume {
+  _id: string;
+  title: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface TimelineEvent {
   _id: string;
   applicationId: string;
@@ -56,4 +63,27 @@ export interface TimelineEvent {
 export interface StatusSuggestion {
   status: ApplicationStatus;
   reason: string;
+}
+
+export type MailStatus = "DRAFT" | "SENT" | "FAILED";
+
+export interface MailRecord {
+  _id: string;
+  applicationId: Application;
+  to: string;
+  subject: string;
+  body: string;
+  status: MailStatus;
+  providerMessageId?: string;
+  error?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ColdMessageRecord {
+  _id: string;
+  applicationId: Application;
+  message: string;
+  createdAt: string;
+  updatedAt: string;
 }

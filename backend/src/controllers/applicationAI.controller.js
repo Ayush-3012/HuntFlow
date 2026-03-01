@@ -17,6 +17,7 @@ import { userProfile } from "../data/userProfile.js";
 
 import { createApplicationService } from "../services/application.service.js";
 import { createMailDraftService } from "../services/mailDraft.service.js";
+import { ColdMessage } from "../models/message.model.js";
 import { extractEmailFromText } from "../utils/extractEmail.util.js";
 import { generateColdMessage, generateMail } from "../ai/aiClient.js";
 
@@ -124,7 +125,18 @@ export const generateApplicationWithAI = async (req, res, next) => {
         },
       }).catch(console.error);
     }
-    coldMessage = await generateColdMessage({jobProfile: job.jobProfile, jobCompany: job.jobCompany, overview: tailoredResume.overview});
+    const generatedColdMessage = await generateColdMessage({
+      jobProfile: job.jobProfile,
+      jobCompany: job.jobCompany,
+      overview: tailoredResume.overview,
+    });
+
+    if (generatedColdMessage?.trim()) {
+      coldMessage = await ColdMessage.create({
+        applicationId: application._id,
+        message: generatedColdMessage.trim(),
+      });
+    }
 
     return res.status(201).json(
       successResponse("Application generated successfully", {

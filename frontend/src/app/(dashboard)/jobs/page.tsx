@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { fetchJobs } from "@/lib/api/job";
 import { Job } from "@/types/application";
 
@@ -9,6 +9,13 @@ export default function JobsPage() {
   const [jobs, setJobs] = useState<Job[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [sortBy, setSortBy] = useState<"company" | "role" | "domain" | "createdAt">("createdAt");
+  const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
+
+  const sortIndicator = (key: "company" | "role" | "domain" | "createdAt") => {
+    if (sortBy !== key) return "↕";
+    return sortDir === "asc" ? "▲" : "▼";
+  };
 
   useEffect(() => {
     async function loadJobs() {
@@ -24,6 +31,32 @@ export default function JobsPage() {
 
     loadJobs();
   }, []);
+
+  const handleSort = (key: "company" | "role" | "domain" | "createdAt") => {
+    if (sortBy === key) {
+      setSortDir((prev) => (prev === "asc" ? "desc" : "asc"));
+      return;
+    }
+    setSortBy(key);
+    setSortDir("asc");
+  };
+
+  const sortedJobs = useMemo(() => {
+    const getValue = (job: Job) => {
+      if (sortBy === "company") return job.jobCompany.toLowerCase();
+      if (sortBy === "role") return job.jobProfile.toLowerCase();
+      if (sortBy === "domain") return job.domain.toLowerCase();
+      return new Date(job.createdAt).getTime();
+    };
+
+    return [...jobs].sort((a, b) => {
+      const aValue = getValue(a);
+      const bValue = getValue(b);
+      if (aValue === bValue) return 0;
+      const result = aValue > bValue ? 1 : -1;
+      return sortDir === "asc" ? result : -result;
+    });
+  }, [jobs, sortBy, sortDir]);
 
   return (
     <div className="space-y-6">
@@ -65,17 +98,33 @@ export default function JobsPage() {
             <table className="w-full text-sm min-w-195">
               <thead className="bg-gray-50 text-gray-600">
                 <tr>
-                  <th className="text-left px-6 py-3">Company</th>
-                  <th className="text-left px-6 py-3">Role</th>
-                  <th className="text-left px-6 py-3">Domain</th>
+                  <th className="text-left px-6 py-3">
+                    <button className="font-medium hover:underline inline-flex items-center gap-1" onClick={() => handleSort("company")}>
+                      Company <span className="text-xs text-gray-500">{sortIndicator("company")}</span>
+                    </button>
+                  </th>
+                  <th className="text-left px-6 py-3">
+                    <button className="font-medium hover:underline inline-flex items-center gap-1" onClick={() => handleSort("role")}>
+                      Role <span className="text-xs text-gray-500">{sortIndicator("role")}</span>
+                    </button>
+                  </th>
+                  <th className="text-left px-6 py-3">
+                    <button className="font-medium hover:underline inline-flex items-center gap-1" onClick={() => handleSort("domain")}>
+                      Domain <span className="text-xs text-gray-500">{sortIndicator("domain")}</span>
+                    </button>
+                  </th>
                   <th className="text-left px-6 py-3">Job Link</th>
-                  <th className="text-left px-6 py-3">Created</th>
+                  <th className="text-left px-6 py-3">
+                    <button className="font-medium hover:underline inline-flex items-center gap-1" onClick={() => handleSort("createdAt")}>
+                      Created <span className="text-xs text-gray-500">{sortIndicator("createdAt")}</span>
+                    </button>
+                  </th>
                   <th className="text-left px-6 py-3">Actions</th>
                 </tr>
               </thead>
 
               <tbody>
-                {jobs.map((job) => (
+                {sortedJobs.map((job) => (
                   <tr key={job._id} className="border-t hover:bg-gray-50">
                     <td className="px-6 py-4 font-medium">{job.jobCompany}</td>
                     <td className="px-6 py-4">{job.jobProfile}</td>

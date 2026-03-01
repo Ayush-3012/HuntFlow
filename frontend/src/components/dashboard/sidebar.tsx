@@ -2,12 +2,21 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Briefcase, FileText, Settings } from "lucide-react";
+import {
+  LayoutDashboard,
+  Briefcase,
+  FileText,
+  Mail,
+  MessageSquare,
+  Settings,
+} from "lucide-react";
 
 const navItems = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { name: "Jobs", href: "/jobs", icon: Briefcase },
   { name: "Resumes", href: "/resumes", icon: FileText },
+  { name: "Mails", href: "/mails", icon: Mail },
+  { name: "Messages", href: "/messages", icon: MessageSquare },
   { name: "Settings", href: "/settings", icon: Settings },
 ];
 
@@ -16,7 +25,7 @@ export default function Sidebar() {
 
   return (
     <aside className="w-64 bg-white border-r h-full p-4">
-      <h2 className="text-xl font-semibold mb-6">HuntFlow</h2>
+      <div className="text-xl font-semibold mb-6"><Link href="/dashboard">HuntFlow</Link></div>
 
       <nav className="space-y-2">
         {navItems.map((item) => {
