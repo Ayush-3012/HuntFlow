@@ -8,6 +8,7 @@ import { fetchJobs } from "@/lib/api/job";
 import { fetchResumes } from "@/lib/api/resume";
 import { Job, Resume } from "@/types/application";
 import HourglassLoader from "@/components/ui/hourglass-loader";
+import { toast } from "@/lib/toast";
 
 export default function GenerateApplicationPage() {
   const router = useRouter();
@@ -43,6 +44,7 @@ export default function GenerateApplicationPage() {
 
     if (!jobId || !resumeId) {
       setError("Please select both job and resume.");
+      toast.error("Please select both job and resume.");
       return;
     }
 
@@ -50,8 +52,10 @@ export default function GenerateApplicationPage() {
     try {
       const generated = await generateApplicationWithAI({ jobId, resumeId });
       setResult(generated);
+      toast.success("Application generated successfully.");
     } catch {
       setError("Failed to generate AI application.");
+      toast.error("Failed to generate AI application.");
     } finally {
       setSubmitting(false);
     }
@@ -162,5 +166,7 @@ export default function GenerateApplicationPage() {
     </div>
   );
 }
+
+
 
 

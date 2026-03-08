@@ -7,18 +7,16 @@ import SortIndicator from "@/components/ui/sort-indicator";
 
 function StatusBadge({ status }: { status: ApplicationStatus }) {
   const styles: Record<ApplicationStatus, string> = {
-    Saved: "bg-gray-100 text-gray-700",
-    Applied: "bg-blue-50 text-blue-700",
-    Shortlisted: "bg-yellow-50 text-yellow-700",
-    Interviewed: "bg-purple-50 text-purple-700",
-    Rejected: "bg-red-50 text-red-700",
-    Selected: "bg-green-50 text-green-700",
+    Saved: "bg-gray-200 text-gray-700",
+    Applied: "bg-blue-200 text-blue-700",
+    Shortlisted: "bg-yellow-100 text-yellow-700",
+    Interviewed: "bg-purple-100 text-purple-700",
+    Rejected: "bg-red-100 text-red-700",
+    Selected: "bg-green-100 text-green-700",
   };
 
   return (
-    <span
-      className={`px-2 py-1 text-xs rounded-md font-medium ${styles[status]}`}
-    >
+    <span className={`px-2 py-1 text-xs rounded-md font-medium ${styles[status]}`}>
       {status}
     </span>
   );
@@ -78,86 +76,81 @@ export default function ApplicationsTable({
   }, [applications, sortBy, sortDir]);
 
   return (
-    <div className="bg-white border rounded-xl shadow-sm overflow-hidden">
-      <div className="px-6 py-4 border-b">
+    <div className="overflow-hidden rounded-xl border bg-white shadow-sm">
+      <div className="border-b px-4 py-4 sm:px-6">
         <h2 className="font-semibold">Recent Applications</h2>
       </div>
 
       {applications.length === 0 ? (
         <div className="p-6 text-sm text-gray-500">No applications yet.</div>
       ) : (
-        <table className="w-full text-sm overflow-y-auto">
-          <thead className="bg-gray-50 text-gray-600">
-            <tr>
-              <th className="text-left px-6 py-3">
-                <button className="font-medium hover:underline inline-flex items-center gap-1" onClick={() => handleSort("company")}>
-                  Company <span className="text-xs text-gray-500">{sortIndicator("company")}</span>
-                </button>
-              </th>
-              <th className="text-left px-6 py-3">
-                <button className="font-medium hover:underline inline-flex items-center gap-1" onClick={() => handleSort("role")}>
-                  Role <span className="text-xs text-gray-500">{sortIndicator("role")}</span>
-                </button>
-              </th>
-              <th className="text-left px-6 py-3">
-                <button className="font-medium hover:underline inline-flex items-center gap-1" onClick={() => handleSort("resume")}>
-                  Resume <span className="text-xs text-gray-500">{sortIndicator("resume")}</span>
-                </button>
-              </th>
-              <th className="text-left px-6 py-3">
-                <button className="font-medium hover:underline inline-flex items-center gap-1" onClick={() => handleSort("status")}>
-                  Status <span className="text-xs text-gray-500">{sortIndicator("status")}</span>
-                </button>
-              </th>
-              <th className="text-left px-6 py-3">
-                <button className="font-medium hover:underline inline-flex items-center gap-1" onClick={() => handleSort("updatedAt")}>
-                  Last Activity <span className="text-xs text-gray-500">{sortIndicator("updatedAt")}</span>
-                </button>
-              </th>
-              <th className="text-left px-6 py-3">Details</th>
-              <th className="text-left px-6 py-3">Actions</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            {sortedApps.map((app) => (
-              <tr
-                key={app._id}
-                className="border-t hover:bg-gray-50 transition"
-              >
-                <td className="px-6 py-4 font-medium">{app.jobId.jobCompany}</td>
-                <td className="px-6 py-4">{app.jobId.jobProfile}</td>
-                <td className="px-6 py-4">
-                  {app.versionId?.version ?? "-"}
-                </td>
-                <td className="px-6 py-4">
-                  <StatusBadge status={app.status} />
-                </td>
-                <td className="px-6 py-4 text-gray-500">
-                  {new Date(app.updatedAt).toLocaleDateString()}
-                </td>
-                <td className="px-6 py-4">
-                  <Link href={`/applications/${app._id}`} className="text-blue-600 hover:underline">
-                    Open
-                  </Link>
-                </td>
-                <td className="px-6 py-4">
-                  <button
-                    type="button"
-                    disabled={!onDelete || deletingId === app._id}
-                    onClick={() => onDelete?.(app)}
-                    className="text-red-600 hover:underline cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
-                  >
-                    {deletingId === app._id ? "Deleting..." : "Delete"}
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[980px] text-sm">
+            <thead className="bg-gray-50 text-gray-600">
+              <tr>
+                <th className="px-4 py-3 text-left sm:px-6">
+                  <button className="inline-flex items-center gap-1 font-medium hover:underline" onClick={() => handleSort("company")}>
+                    Company <span className="text-xs text-gray-500">{sortIndicator("company")}</span>
                   </button>
-                </td>
+                </th>
+                <th className="px-4 py-3 text-left sm:px-6">
+                  <button className="inline-flex items-center gap-1 font-medium hover:underline" onClick={() => handleSort("role")}>
+                    Role <span className="text-xs text-gray-500">{sortIndicator("role")}</span>
+                  </button>
+                </th>
+                <th className="px-4 py-3 text-left sm:px-6">
+                  <button className="inline-flex items-center gap-1 font-medium hover:underline" onClick={() => handleSort("resume")}>
+                    Resume <span className="text-xs text-gray-500">{sortIndicator("resume")}</span>
+                  </button>
+                </th>
+                <th className="px-4 py-3 text-left sm:px-6">
+                  <button className="inline-flex items-center gap-1 font-medium hover:underline" onClick={() => handleSort("status")}>
+                    Status <span className="text-xs text-gray-500">{sortIndicator("status")}</span>
+                  </button>
+                </th>
+                <th className="px-4 py-3 text-left sm:px-6">
+                  <button className="inline-flex items-center gap-1 font-medium hover:underline" onClick={() => handleSort("updatedAt")}>
+                    Last Activity <span className="text-xs text-gray-500">{sortIndicator("updatedAt")}</span>
+                  </button>
+                </th>
+                <th className="px-4 py-3 text-left sm:px-6">Details</th>
+                <th className="px-4 py-3 text-left sm:px-6">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+
+            <tbody>
+              {sortedApps.map((app) => (
+                <tr key={app._id} className="border-t transition hover:bg-gray-50">
+                  <td className="px-4 py-4 font-medium sm:px-6">{app.jobId.jobCompany}</td>
+                  <td className="px-4 py-4 sm:px-6">{app.jobId.jobProfile}</td>
+                  <td className="px-4 py-4 sm:px-6">{app.versionId?.version ?? "-"}</td>
+                  <td className="px-4 py-4 sm:px-6">
+                    <StatusBadge status={app.status} />
+                  </td>
+                  <td className="px-4 py-4 text-gray-500 sm:px-6">
+                    {new Date(app.updatedAt).toLocaleDateString()}
+                  </td>
+                  <td className="px-4 py-4 sm:px-6">
+                    <Link href={`/applications/${app._id}`} className="text-blue-600 hover:underline">
+                      Open
+                    </Link>
+                  </td>
+                  <td className="px-4 py-4 sm:px-6">
+                    <button
+                      type="button"
+                      disabled={!onDelete || deletingId === app._id}
+                      onClick={() => onDelete?.(app)}
+                      className="cursor-pointer text-red-600 hover:underline disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {deletingId === app._id ? "Deleting..." : "Delete"}
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
     </div>
   );
 }
-
-

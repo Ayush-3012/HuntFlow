@@ -7,6 +7,7 @@ import { MailRecord } from "@/types/application";
 import { X } from "lucide-react";
 import SortIndicator from "@/components/ui/sort-indicator";
 import HourglassLoader from "@/components/ui/hourglass-loader";
+import { toast } from "@/lib/toast";
 
 type MailSortKey =
   | "company"
@@ -87,8 +88,11 @@ export default function MailsPage() {
 
       setMails((prev) => prev.map((m) => (m._id === updated._id ? updated : m)));
       setPreviewMail(updated);
+      setPreviewMail(null);
+      toast.success("Draft saved successfully.");
     } catch {
       setActionError("Failed to save draft. Please try again.");
+      toast.error("Failed to save draft.");
     } finally {
       setSaving(false);
     }
@@ -104,8 +108,10 @@ export default function MailsPage() {
 
       setMails((prev) => prev.map((m) => (m._id === updated._id ? updated : m)));
       setPreviewMail(updated);
+      toast.success("Mail sent successfully.");
     } catch {
       setActionError("Failed to send mail. Please try again.");
+      toast.error("Failed to send mail.");
     } finally {
       setSendingMailId(null);
     }
@@ -225,7 +231,7 @@ export default function MailsPage() {
               <h2 className="font-semibold">Mail Preview</h2>
               <button
                 onClick={() => setPreviewMail(null)}
-                className="text-gray-500 hover:text-gray-700"
+                className="text-gray-500 cursor-pointer hover:text-white hover:bg-gray-500 transition rounded-full p-1"
               >
                 <X />
               </button>
@@ -297,5 +303,8 @@ export default function MailsPage() {
     </div>
   );
 }
+
+
+
 
 

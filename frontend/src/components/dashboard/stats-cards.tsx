@@ -18,14 +18,14 @@ export default function StatsCards({ applications }: Props) {
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       {items.map((stat) => (
         <div
           key={stat.title}
-          className="bg-white border rounded-xl p-5 shadow-sm"
+          className="bg-white border rounded-xl p-5 shadow-sm max-sm:p-3"
         >
           <p className="text-sm text-gray-500">{stat.title}</p>
-          <h3 className="text-2xl font-semibold mt-2">{stat.value}</h3>
+          <h3 className="text-2xl font-semibold mt-2 max-sm:text-xl">{stat.value}</h3>
         </div>
       ))}
     </div>

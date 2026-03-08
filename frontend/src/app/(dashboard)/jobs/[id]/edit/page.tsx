@@ -4,6 +4,7 @@ import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { fetchJobById, JobPayload, updateJob } from "@/lib/api/job";
 import HourglassLoader from "@/components/ui/hourglass-loader";
+import { toast } from "@/lib/toast";
 
 type FormErrors = Partial<Record<keyof JobPayload, string>>;
 
@@ -81,9 +82,11 @@ export default function EditJobPage() {
         jobLink: form.jobLink.trim(),
         domain: form.domain.trim(),
       });
+      toast.success("Job updated successfully.");
       router.push(`/jobs/${params.id}`);
     } catch {
       setError("Failed to update job.");
+      toast.error("Failed to update job.");
     } finally {
       setSaving(false);
     }
@@ -149,7 +152,7 @@ export default function EditJobPage() {
         <button
           type="submit"
           disabled={saving}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-60"
+          className="bg-blue-600 text-white cursor-pointer px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-60"
         >
           {saving ? "Saving..." : "Save Changes"}
         </button>
@@ -177,3 +180,5 @@ function Field({
     </div>
   );
 }
+
+

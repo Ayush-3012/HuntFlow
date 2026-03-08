@@ -82,7 +82,7 @@ export default function MessagesPage() {
         {sortedMessages.length === 0 ? (
           <div className="p-6 text-sm text-gray-500">No messages found.</div>
         ) : (
-          <table className="w-full text-sm min-w-[1000px]">
+          <table className="w-full text-sm min-w-[1050px]">
             <thead className="bg-gray-50 text-gray-600">
               <tr>
                 <th className="text-left px-6 py-3">
@@ -118,9 +118,9 @@ export default function MessagesPage() {
                     <button
                       type="button"
                       onClick={() => setPreviewMessage(item.message)}
-                      className="mt-2 text-xs text-blue-600 hover:underline"
+                      className="mt-2 text-sm cursor-pointer text-blue-600 hover:underline"
                     >
-                      View full
+                      View Full
                     </button>
                   </td>
                   <td className="px-6 py-4 text-gray-500">{new Date(item.updatedAt).toLocaleDateString()}</td>
@@ -147,7 +147,7 @@ export default function MessagesPage() {
               <button
                 type="button"
                 onClick={() => setPreviewMessage(null)}
-                className="text-sm text-gray-500 cursor-pointer hover:text-gray-700"
+                className="text-sm text-gray-500 cursor-pointer hover:bg-gray-700 hover:text-white p-1 rounded-full"
               >
                 <X />
               </button>
@@ -165,5 +165,6 @@ export default function MessagesPage() {
     </div>
   );
 }
+
 
 

@@ -3,6 +3,7 @@ import {
   Application,
   ApplicationStatus,
   ColdMessageRecord,
+  MailRecord,
   StatusSuggestion,
   TimelineEvent,
 } from "@/types/application";
@@ -16,6 +17,8 @@ export type ApplicationDetail = {
   application: Application;
   timeline: TimelineEvent[];
   suggestedStatus: StatusSuggestion | null;
+  latestMail: MailRecord | null;
+  latestColdMessage: ColdMessageRecord | null;
 };
 
 export async function fetchApplicationById(
@@ -63,3 +66,4 @@ export async function generateApplicationWithAI(payload: {
   const res = await api.post("/main/generate", payload);
   return res.data.data ?? res.data;
 }
+

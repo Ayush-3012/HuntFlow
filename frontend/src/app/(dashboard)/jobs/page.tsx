@@ -94,7 +94,7 @@ export default function JobsPage() {
               No jobs found. Add your first job to get started.
             </div>
           ) : (
-            <table className="w-full text-sm min-w-195">
+            <table className="w-full text-sm min-w-[980px]">
               <thead className="bg-gray-50 text-gray-600">
                 <tr>
                   <th className="text-left px-6 py-3">
@@ -149,13 +149,13 @@ export default function JobsPage() {
                       <div className="flex items-center gap-3">
                         <Link
                           href={`/jobs/${job._id}`}
-                          className="text-blue-600 hover:underline"
+                          className="text-blue-600 cursor-pointer hover:underline"
                         >
                           View
                         </Link>
                         <Link
                           href={`/jobs/${job._id}/edit`}
-                          className="text-gray-700 hover:underline"
+                          className="text-blue-600 cursor-pointer hover:underline"
                         >
                           Edit
                         </Link>
@@ -171,5 +171,6 @@ export default function JobsPage() {
     </div>
   );
 }
+
 
 

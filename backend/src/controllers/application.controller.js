@@ -82,6 +82,11 @@ export const getApplication = async (req, res, next) => {
       foundApplication.status,
     );
 
+    const [latestMail, latestColdMessage] = await Promise.all([
+      Mail.findOne({ applicationId: foundApplication._id }).sort({ updatedAt: -1 }),
+      ColdMessage.findOne({ applicationId: foundApplication._id }).sort({ updatedAt: -1 }),
+    ]);
+
     return res
       .status(200)
       .json(
@@ -89,6 +94,8 @@ export const getApplication = async (req, res, next) => {
           application: foundApplication,
           timeline: timelineEvents,
           suggestedStatus: suggestion,
+          latestMail,
+          latestColdMessage,
         }),
       );
   } catch (error) {
@@ -295,3 +302,4 @@ export const deleteApplication = async (req, res, next) => {
     next(error);
   }
 };
+

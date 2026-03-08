@@ -3,6 +3,7 @@
 import { ChangeEvent, FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { createJob, JobPayload } from "@/lib/api/job";
+import { toast } from "@/lib/toast";
 
 type FormErrors = Partial<Record<keyof JobPayload, string>>;
 
@@ -55,6 +56,7 @@ export default function NewJobPage() {
         jobLink: form.jobLink.trim(),
         domain: form.domain.trim(),
       });
+      toast.success("Job created successfully.");
       router.push("/jobs");
     } catch (error) {
       const fallback = "Failed to save job. Please try again.";
@@ -67,6 +69,7 @@ export default function NewJobPage() {
         setSubmitError((error as { response?: { data?: { message?: string } } }).response!.data!.message!);
       } else {
         setSubmitError(fallback);
+        toast.error(fallback);
       }
     } finally {
       setIsSubmitting(false);
@@ -196,3 +199,5 @@ function PreviewRow({ label, value }: { label: string; value: string }) {
     </div>
   );
 }
+
+

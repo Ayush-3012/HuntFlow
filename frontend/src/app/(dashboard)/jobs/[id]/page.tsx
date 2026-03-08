@@ -54,9 +54,11 @@ export default function JobDetailsPage() {
       </div>
 
       <div className="bg-white border rounded-xl p-6 space-y-5">
+        <div className="flex items-center justify-between"> 
         <InfoRow label="Company" value={job.jobCompany} />
         <InfoRow label="Role" value={job.jobProfile} />
         <InfoRow label="Domain" value={job.domain} />
+        </div>
         <InfoRow
           label="Job Link"
           value={

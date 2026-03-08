@@ -6,6 +6,7 @@ import ApplicationsTable from "@/components/dashboard/applications-table";
 import { deleteApplication, fetchApplications } from "@/lib/api/application";
 import { Application } from "@/types/application";
 import HourglassLoader from "@/components/ui/hourglass-loader";
+import { toast } from "@/lib/toast";
 
 export default function DashboardPage() {
   const [applications, setApplications] = useState<Application[]>([]);
@@ -48,8 +49,10 @@ export default function DashboardPage() {
     try {
       await deleteApplication(application._id);
       setApplications((prev) => prev.filter((item) => item._id !== application._id));
+      toast.success("Application deleted successfully.");
     } catch {
       setActionError("Failed to delete application.");
+      toast.error("Failed to delete application.");
     } finally {
       setDeletingId(null);
     }
@@ -71,5 +74,7 @@ export default function DashboardPage() {
     </div>
   );
 }
+
+
 
 

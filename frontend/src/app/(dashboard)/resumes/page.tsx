@@ -118,7 +118,7 @@ export default function ResumesPage() {
   }, [rows, sortBy, sortDir]);
 
   if (loading) {
-    return <HourglassLoader label="Loading resumes..." />;
+    return <HourglassLoader label="Loading Resumes..." />;
   }
 
   if (error) {
@@ -138,7 +138,7 @@ export default function ResumesPage() {
         {sortedRows.length === 0 ? (
           <div className="p-6 text-sm text-gray-500">No resumes found.</div>
         ) : (
-          <table className="w-full text-sm min-w-[1000px]">
+          <table className="w-full text-sm min-w-[1050px]">
             <thead className="bg-gray-50 text-gray-600">
               <tr>
                 <th className="px-6 py-3 text-left">
@@ -213,7 +213,7 @@ export default function ResumesPage() {
                     {row.fileUrl ? (
                       <button
                         onClick={() => setViewerUrl(row.fileUrl)}
-                        className="text-blue-600 hover:underline"
+                        className="text-blue-600 cursor-pointer hover:underline"
                       >
                         View PDF
                       </button>
@@ -229,7 +229,7 @@ export default function ResumesPage() {
                         download
                         target="_blank"
                         rel="noreferrer"
-                        className="text-blue-600 hover:underline"
+                        className="text-blue-600 cursor-pointer hover:underline"
                       >
                         Download PDF
                       </a>
@@ -274,7 +274,7 @@ export default function ResumesPage() {
 
                 <button
                   onClick={() => setViewerUrl(null)}
-                  className="p-2 rounded-full hover:bg-gray-700 hover:text-white text-gray-500"
+                  className="p-2 rounded-full hover:bg-gray-700 cursor-pointer hover:text-white text-gray-500"
                 >
                   <X />
                 </button>
@@ -288,5 +288,6 @@ export default function ResumesPage() {
     </div>
   );
 }
+
 
 
