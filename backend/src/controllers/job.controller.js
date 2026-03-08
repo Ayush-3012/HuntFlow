@@ -55,15 +55,38 @@ export const getJobDetails = async (req, res, next) => {
 
 export const updateJob = async (req, res, next) => {
   try {
-    const foundJob = await Job.findById(req.params.id);
-    if (!foundJob) {
+    const allowedFields = [
+      "jobProfile",
+      "jobCompany",
+      "jobDescription",
+      "jobLink",
+      "domain",
+    ];
+
+    const updates = Object.fromEntries(
+      Object.entries(req.body || {}).filter(([key]) => allowedFields.includes(key))
+    );
+
+    if (Object.keys(updates).length === 0) {
+      const error = new Error("No valid fields provided for update");
+      error.statusCode = 400;
+      throw error;
+    }
+
+    const updatedJob = await Job.findByIdAndUpdate(req.params.id, updates, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!updatedJob) {
       const error = new Error("Job Not found");
       error.statusCode = 404;
       throw error;
     }
 
-    const updatedJob = await Job.findByIdAndUpdate(req.params.id, req.body);
-    return res.status(200).json(successResponse("Found Job", updatedJob));
+    return res
+      .status(200)
+      .json(successResponse("Job updated successfully", updatedJob));
   } catch (error) {
     next(error);
   }

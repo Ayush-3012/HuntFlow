@@ -13,4 +13,8 @@ const coldMessageSchema = new mongoose.Schema({
     }
 }, { timestamps: true });
 
+
+coldMessageSchema.index({ applicationId: 1, updatedAt: -1 });
+
 export const ColdMessage = mongoose.model("ColdMessage", coldMessageSchema);
+

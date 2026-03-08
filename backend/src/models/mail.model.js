@@ -46,4 +46,9 @@ const mailSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+
+mailSchema.index({ applicationId: 1, updatedAt: -1 });
+mailSchema.index({ status: 1, updatedAt: -1 });
+
 export const Mail = mongoose.model("Mail", mailSchema);
+

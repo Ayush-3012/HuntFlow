@@ -87,6 +87,49 @@ export const getMail = async (req, res, next) => {
   }
 };
 
+export const updateMail = async (req, res, next) => {
+  try {
+    const { subject, body } = req.body;
+
+    if (!subject || !body) {
+      const error = new Error("Subject and body are required");
+      error.statusCode = 400;
+      throw error;
+    }
+
+    const foundMail = await Mail.findById(req.params.id);
+    if (!foundMail) {
+      const error = new Error("Mail not found");
+      error.statusCode = 404;
+      throw error;
+    }
+
+    if (foundMail.status === "SENT") {
+      const error = new Error("Cannot edit a sent mail");
+      error.statusCode = 400;
+      throw error;
+    }
+
+    foundMail.subject = subject;
+    foundMail.body = body;
+    foundMail.status = "DRAFT"; // reset if previously failed
+    foundMail.error = null;
+
+    await foundMail.save();
+
+    const populatedMail = await Mail.findById(foundMail._id).populate({
+      path: "applicationId",
+      populate: [{ path: "jobId" }, { path: "versionId" }],
+    });
+
+    return res
+      .status(200)
+      .json(successResponse("Mail updated successfully", populatedMail));
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const sendMail = async (req, res, next) => {
   try {
     const foundMail = await Mail.findById(req.params.id);

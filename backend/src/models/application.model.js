@@ -28,4 +28,8 @@ const applicationSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+applicationSchema.index({ status: 1, updatedAt: -1 });
+applicationSchema.index({ versionId: 1 });
+applicationSchema.index({ jobId: 1, updatedAt: -1 });
+
 export const Application = mongoose.model("Application", applicationSchema);

@@ -20,6 +20,7 @@ import { createMailDraftService } from "../services/mailDraft.service.js";
 import { ColdMessage } from "../models/message.model.js";
 import { extractEmailFromText } from "../utils/extractEmail.util.js";
 import { generateColdMessage, generateMail } from "../ai/aiClient.js";
+import { Resume } from "../models/resume.model.js";
 
 // const BASE_RESUME_URL = "https://drive.google.com/uc?export=download&id=1daaNOO3pvsgkatOS8B5TyHVrypHv1SBu";
 const BASE_RESUME_URL =
@@ -39,6 +40,14 @@ export const generateApplicationWithAI = async (req, res, next) => {
     const job = await Job.findById(jobId);
     if (!job) {
       const error = new Error("Job not found");
+      error.statusCode = 404;
+      throw error;
+    }
+
+    // 2️⃣ Resume Check
+    const resume = await Resume.findById(resumeId)
+    if (!resume) {
+      const error = new Error("Resume not found");
       error.statusCode = 404;
       throw error;
     }

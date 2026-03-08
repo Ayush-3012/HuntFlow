@@ -3,6 +3,7 @@
 import { ChangeEvent, FormEvent, useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { fetchJobById, JobPayload, updateJob } from "@/lib/api/job";
+import HourglassLoader from "@/components/ui/hourglass-loader";
 
 type FormErrors = Partial<Record<keyof JobPayload, string>>;
 
@@ -89,7 +90,7 @@ export default function EditJobPage() {
   };
 
   if (loading) {
-    return <div className="p-6 text-sm text-gray-500">Loading edit form...</div>;
+    return <HourglassLoader label="Loading edit form..." />;
   }
 
   return (

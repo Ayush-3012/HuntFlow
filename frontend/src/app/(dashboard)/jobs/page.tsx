@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { fetchJobs } from "@/lib/api/job";
 import { Job } from "@/types/application";
+import SortIndicator from "@/components/ui/sort-indicator";
+import HourglassLoader from "@/components/ui/hourglass-loader";
 
 export default function JobsPage() {
   const [jobs, setJobs] = useState<Job[]>([]);
@@ -13,8 +15,7 @@ export default function JobsPage() {
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
 
   const sortIndicator = (key: "company" | "role" | "domain" | "createdAt") => {
-    if (sortBy !== key) return "↕";
-    return sortDir === "asc" ? "▲" : "▼";
+    return <SortIndicator active={sortBy === key} direction={sortDir} />;
   };
 
   useEffect(() => {
@@ -77,9 +78,7 @@ export default function JobsPage() {
       </div>
 
       {loading ? (
-        <div className="bg-white border rounded-xl p-6 text-sm text-gray-500">
-          Loading jobs...
-        </div>
+        <div className="bg-white border rounded-xl"><HourglassLoader label="Loading jobs..." /></div>
       ) : null}
 
       {error ? (
@@ -172,3 +171,5 @@ export default function JobsPage() {
     </div>
   );
 }
+
+

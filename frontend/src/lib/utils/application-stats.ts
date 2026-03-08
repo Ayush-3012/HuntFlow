@@ -7,9 +7,7 @@ export function calculateApplicationStats(apps: Application[]) {
     (a) => a.status === "Applied" || a.status === "Shortlisted"
   ).length;
 
-  const interview = apps.filter(
-    (a) => a.status === "Interview" || a.status === "Interviewed"
-  ).length;
+  const interview = apps.filter((a) => a.status === "Interviewed").length;
 
   const rejected = apps.filter((a) => a.status === "Rejected").length;
 

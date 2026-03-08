@@ -2,7 +2,6 @@ export type ApplicationStatus =
   | "Saved"
   | "Applied"
   | "Shortlisted"
-  | "Interview"
   | "Interviewed"
   | "Rejected"
   | "Selected";
@@ -66,6 +65,11 @@ export interface StatusSuggestion {
 }
 
 export type MailStatus = "DRAFT" | "SENT" | "FAILED";
+
+export type UpdateMailPayload = {
+  subject: string;
+  body: string;
+};
 
 export interface MailRecord {
   _id: string;

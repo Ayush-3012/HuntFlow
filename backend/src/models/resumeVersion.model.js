@@ -20,7 +20,12 @@ const resumeVersionSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+
+resumeVersionSchema.index({ resumeId: 1, createdAt: -1 });
+resumeVersionSchema.index({ resumeId: 1, version: 1 }, { unique: true });
+
 export const ResumeVersion = mongoose.model(
   "ResumeVersion",
   resumeVersionSchema
 );
+

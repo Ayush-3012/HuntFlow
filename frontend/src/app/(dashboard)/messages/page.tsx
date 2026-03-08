@@ -5,6 +5,8 @@ import { useEffect, useMemo, useState } from "react";
 import { fetchMessages } from "@/lib/api/message";
 import { ColdMessageRecord } from "@/types/application";
 import { X } from "lucide-react";
+import SortIndicator from "@/components/ui/sort-indicator";
+import HourglassLoader from "@/components/ui/hourglass-loader";
 
 type MessageSortKey = "company" | "role" | "message" | "updatedAt";
 
@@ -17,8 +19,7 @@ export default function MessagesPage() {
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
 
   const sortIndicator = (key: MessageSortKey) => {
-    if (sortBy !== key) return "↕";
-    return sortDir === "asc" ? "▲" : "▼";
+    return <SortIndicator active={sortBy === key} direction={sortDir} />;
   };
 
   useEffect(() => {
@@ -63,7 +64,7 @@ export default function MessagesPage() {
   }, [messages, sortBy, sortDir]);
 
   if (loading) {
-    return <div className="p-6 text-sm text-gray-500">Loading messages...</div>;
+    return <HourglassLoader label="Loading messages..." />;
   }
 
   if (error) {
@@ -164,3 +165,5 @@ export default function MessagesPage() {
     </div>
   );
 }
+
+

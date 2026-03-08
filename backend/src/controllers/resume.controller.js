@@ -1,3 +1,4 @@
+import { Application } from "../models/application.model.js";
 import { Resume } from "../models/resume.model.js";
 import { ResumeVersion } from "../models/resumeVersion.model.js";
 import { createResumeVersionService } from "../services/resumeVersion.service.js";
@@ -85,10 +86,22 @@ export const listResumeVersions = async (req, res, next) => {
     }
 
     const versions = await ResumeVersion.find({ resumeId });
+    const enrichedVersions = await Promise.all(
+      versions.map(async (version) => {
+        const applications = await Application.find({
+          versionId: version._id,
+        }).populate("jobId");
 
-    return res
-      .status(200)
-      .json(successResponse("Resume versions fetched", versions));
+        return {
+          ...version.toObject(),
+          applications,
+        };
+      })
+    );
+
+    return res.status(200).json(
+      successResponse("Resume versions fetched", enrichedVersions)
+    );
   } catch (error) {
     next(error);
   }

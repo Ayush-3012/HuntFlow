@@ -3,13 +3,13 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { Application, ApplicationStatus } from "@/types/application";
+import SortIndicator from "@/components/ui/sort-indicator";
 
 function StatusBadge({ status }: { status: ApplicationStatus }) {
   const styles: Record<ApplicationStatus, string> = {
     Saved: "bg-gray-100 text-gray-700",
     Applied: "bg-blue-50 text-blue-700",
     Shortlisted: "bg-yellow-50 text-yellow-700",
-    Interview: "bg-purple-50 text-purple-700",
     Interviewed: "bg-purple-50 text-purple-700",
     Rejected: "bg-red-50 text-red-700",
     Selected: "bg-green-50 text-green-700",
@@ -35,15 +35,20 @@ export default function ApplicationsTable({
   onDelete,
   deletingId,
 }: ApplicationsTableProps) {
-  const [sortBy, setSortBy] = useState<"company" | "role" | "resume" | "status" | "updatedAt">("updatedAt");
+  const [sortBy, setSortBy] = useState<
+    "company" | "role" | "resume" | "status" | "updatedAt"
+  >("updatedAt");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
 
-  const sortIndicator = (key: "company" | "role" | "resume" | "status" | "updatedAt") => {
-    if (sortBy !== key) return "↕";
-    return sortDir === "asc" ? "▲" : "▼";
+  const sortIndicator = (
+    key: "company" | "role" | "resume" | "status" | "updatedAt"
+  ) => {
+    return <SortIndicator active={sortBy === key} direction={sortDir} />;
   };
 
-  const handleSort = (key: "company" | "role" | "resume" | "status" | "updatedAt") => {
+  const handleSort = (
+    key: "company" | "role" | "resume" | "status" | "updatedAt"
+  ) => {
     if (sortBy === key) {
       setSortDir((prev) => (prev === "asc" ? "desc" : "asc"));
       return;
@@ -81,7 +86,7 @@ export default function ApplicationsTable({
       {applications.length === 0 ? (
         <div className="p-6 text-sm text-gray-500">No applications yet.</div>
       ) : (
-        <table className="w-full text-sm">
+        <table className="w-full text-sm overflow-y-auto">
           <thead className="bg-gray-50 text-gray-600">
             <tr>
               <th className="text-left px-6 py-3">
@@ -123,7 +128,7 @@ export default function ApplicationsTable({
                 <td className="px-6 py-4 font-medium">{app.jobId.jobCompany}</td>
                 <td className="px-6 py-4">{app.jobId.jobProfile}</td>
                 <td className="px-6 py-4">
-                  {app.versionId?.version ?? "—"}
+                  {app.versionId?.version ?? "-"}
                 </td>
                 <td className="px-6 py-4">
                   <StatusBadge status={app.status} />
@@ -141,7 +146,7 @@ export default function ApplicationsTable({
                     type="button"
                     disabled={!onDelete || deletingId === app._id}
                     onClick={() => onDelete?.(app)}
-                    className="text-red-600 hover:underline disabled:opacity-60 disabled:cursor-not-allowed"
+                    className="text-red-600 hover:underline cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                   >
                     {deletingId === app._id ? "Deleting..." : "Delete"}
                   </button>
@@ -154,3 +159,5 @@ export default function ApplicationsTable({
     </div>
   );
 }
+
+

@@ -1,16 +1,33 @@
-import sgMail from "@sendgrid/mail";
+import nodemailer from "nodemailer";
 import config from "../config/env.js";
 
-sgMail.setApiKey(config.sendGrid);
+const transporter = nodemailer.createTransport({
+  host: config.smtpHost,
+  port: config.smtpPort,
+  secure: config.smtpSecure, // true for 465, false for 587
+  auth: {
+    user: config.smtpUser,
+    pass: config.smtpPass,
+  },
+});
 
-/**
- * Send email using SendGrid
- * @param {Object} options
- * @param {string} options.to
- * @param {string} options.subject
- * @param {string} options.body
- * @param {Array}  options.attachments  [{ filename, content, type }]
- */
+function escapeHtml(s = "") {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+}
+
+function normalizeBody(body = "", subject = "") {
+  let b = body.trim();
+  const subjectLine = new RegExp(`^subject\\s*:\\s*${subject.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\s*\\n?`, "i");
+  b = b.replace(subjectLine, "");      
+  b = b.replace(/^subject\s*:.+\n?/i, "");
+  return b.trim();
+}
+
 
 export const sendMailService = async ({
   to,
@@ -18,27 +35,29 @@ export const sendMailService = async ({
   body,
   attachments = [],
 }) => {
-  const msg = {
-    to,
+  const mappedAttachments = attachments.map((a) => ({
+    filename: a.filename || "attachment",
+    content: a.content, // already base64 from controller
+    encoding: "base64",
+    contentType: a.type,
+    disposition: a.disposition || "attachment",
+  }));
+
+  const cleaned = normalizeBody(body, subject);
+  const htmlBody = `<div style="font-family:Arial,sans-serif;line-height:1.6;white-space:pre-line;">${escapeHtml(cleaned)}</div>`;
+
+  const info = await transporter.sendMail({
     from: {
-      email: config.sendGridEmail,
-      name: "Ayush Kumar",
+      address: config.smtpFromEmail || config.smtpUser,
+      name: config.smtpFromName,
     },
+    to,
     subject,
-    html: body,
-    attachments,
+    html: htmlBody,
+    attachments: mappedAttachments,
+  });
+
+  return {
+    providerMessageId: (info.messageId || "").replace(/[<>]/g, ""),
   };
-
-  try {
-    const [response] = await sgMail.send(msg);
-
-    return {
-      providerMessageId: response.headers["x-message-id"],
-    };
-  } catch (error) {
-    const err = new Error(
-      error.response?.body?.errors?.[0]?.message || "Failed to send email"
-    );
-    throw err;
-  }
 };

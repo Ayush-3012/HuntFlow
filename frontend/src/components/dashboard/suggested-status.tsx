@@ -9,7 +9,6 @@ const NEXT_STATUS_MAP: Partial<Record<ApplicationStatus, ApplicationStatus>> = {
   Saved: "Applied",
   Applied: "Shortlisted",
   Shortlisted: "Interviewed",
-  Interview: "Selected",
   Interviewed: "Selected",
 };
 

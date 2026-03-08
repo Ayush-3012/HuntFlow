@@ -3,9 +3,9 @@
 import { useEffect, useState } from "react";
 import StatsCards from "@/components/dashboard/stats-cards";
 import ApplicationsTable from "@/components/dashboard/applications-table";
-import RightPanel from "@/components/dashboard/right-panel";
 import { deleteApplication, fetchApplications } from "@/lib/api/application";
 import { Application } from "@/types/application";
+import HourglassLoader from "@/components/ui/hourglass-loader";
 
 export default function DashboardPage() {
   const [applications, setApplications] = useState<Application[]>([]);
@@ -30,24 +30,16 @@ export default function DashboardPage() {
   }, []);
 
   if (loading) {
-    return (
-      <div className="p-6 text-sm text-gray-500">
-        Loading dashboard...
-      </div>
-    );
+    return <HourglassLoader label="Loading dashboard..." />;
   }
 
   if (loadError) {
-    return (
-      <div className="p-6 text-sm text-red-600">
-        {loadError}
-      </div>
-    );
+    return <div className="p-6 text-sm text-red-600">{loadError}</div>;
   }
 
   const handleDelete = async (application: Application) => {
     const shouldDelete = window.confirm(
-      `Delete application for ${application.jobId.jobCompany} - ${application.jobId.jobProfile}? This will also remove related mails/messages/timeline and linked resume version if not used elsewhere.`,
+      `Delete application for ${application.jobId.jobCompany} - ${application.jobId.jobProfile}? This will also remove related mails/messages/timeline and linked resume version if not used elsewhere.`
     );
     if (!shouldDelete) return;
 
@@ -64,24 +56,20 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-      {/* LEFT */}
-      <div className="lg:col-span-2 space-y-6">
-        {actionError ? (
-          <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-            {actionError}
-          </div>
-        ) : null}
-        <StatsCards applications={applications} />
-        <ApplicationsTable
-          applications={applications}
-          onDelete={handleDelete}
-          deletingId={deletingId}
-        />
-      </div>
-
-      {/* RIGHT */}
-      <RightPanel applications={applications} />
+    <div className="space-y-6">
+      {actionError ? (
+        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+          {actionError}
+        </div>
+      ) : null}
+      <StatsCards applications={applications} />
+      <ApplicationsTable
+        applications={applications}
+        onDelete={handleDelete}
+        deletingId={deletingId}
+      />
     </div>
   );
 }
+
+

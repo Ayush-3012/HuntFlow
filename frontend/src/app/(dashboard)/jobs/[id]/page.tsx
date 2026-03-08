@@ -5,6 +5,7 @@ import { useParams } from "next/navigation";
 import { ReactNode, useEffect, useState } from "react";
 import { fetchJobById } from "@/lib/api/job";
 import { Job } from "@/types/application";
+import HourglassLoader from "@/components/ui/hourglass-loader";
 
 export default function JobDetailsPage() {
   const params = useParams<{ id: string }>();
@@ -30,7 +31,7 @@ export default function JobDetailsPage() {
   }, [params.id]);
 
   if (loading) {
-    return <div className="p-6 text-sm text-gray-500">Loading job details...</div>;
+    return <HourglassLoader label="Loading job details..." />;
   }
 
   if (error || !job) {
@@ -86,3 +87,4 @@ function InfoRow({ label, value }: { label: string; value: ReactNode }) {
     </div>
   );
 }
+

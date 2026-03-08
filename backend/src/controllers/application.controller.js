@@ -10,7 +10,6 @@ import { suggestStatusFromTimeline } from "../services/statusSuggestion.service.
 import { successResponse } from "../utils/response.util.js";
 import {
   createTimelineEvent,
-  getApplicationTimeline,
 } from "./timeline.controller.js";
 
 export const createApplication = async (req, res, next) => {
@@ -148,17 +147,19 @@ export const updateApplicationStatus = async (req, res, next) => {
       error.statusCode = 404;
       throw error;
     }
+    const previousStatus = foundApplication.status;
 
     // Prevent backward transition
     const statusOrder = {
       Saved: 1,
       Applied: 2,
+      Shortlisted: 3,
       Interviewed: 3,
       Selected: 4,
       Rejected: 4,
     };
 
-    if (statusOrder[status] < statusOrder[foundApplication.status]) {
+    if (statusOrder[status] < statusOrder[previousStatus]) {
       const error = new Error("Invalid status transition");
       error.statusCode = 400;
       throw error;
@@ -171,7 +172,7 @@ export const updateApplicationStatus = async (req, res, next) => {
       applicationId: foundApplication._id,
       type: "STATUS_UPDATED",
       payload: {
-        from: foundApplication.status,
+        from: previousStatus,
         to: status,
       },
     }).catch(console.error);
@@ -213,6 +214,7 @@ export const updateApplicationResumeVersion = async (req, res, next) => {
     }
 
     foundApplication.versionId = versionId;
+    const oldVersionId = foundApplication.versionId?.toString() || null;
     await foundApplication.save();
 
     createTimelineEvent({

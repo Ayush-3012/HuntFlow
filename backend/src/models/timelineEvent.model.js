@@ -34,7 +34,11 @@ const timelineEventSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
+
+timelineEventSchema.index({ applicationId: 1, createdAt: 1 });
+
 export const TimelineEvent = mongoose.model(
   "TimelineEvent",
   timelineEventSchema
 );
+

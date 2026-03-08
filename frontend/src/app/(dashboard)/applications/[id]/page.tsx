@@ -9,6 +9,7 @@ import {
   updateApplicationStatus,
 } from "@/lib/api/application";
 import { Application, ApplicationStatus, TimelineEvent } from "@/types/application";
+import HourglassLoader from "@/components/ui/hourglass-loader";
 
 const STATUS_OPTIONS: ApplicationStatus[] = [
   "Saved",
@@ -24,7 +25,6 @@ function StatusBadge({ status }: { status: ApplicationStatus }) {
     Saved: "bg-gray-100 text-gray-700",
     Applied: "bg-blue-50 text-blue-700",
     Shortlisted: "bg-yellow-50 text-yellow-700",
-    Interview: "bg-purple-50 text-purple-700",
     Interviewed: "bg-purple-50 text-purple-700",
     Rejected: "bg-red-50 text-red-700",
     Selected: "bg-green-50 text-green-700",
@@ -120,7 +120,7 @@ export default function ApplicationDetailPage() {
   };
 
   if (loading) {
-    return <div className="p-6 text-sm text-gray-500">Loading application...</div>;
+    return <HourglassLoader label="Loading application..." />;
   }
 
   if (error && !application) {
@@ -256,3 +256,6 @@ function formatEventLabel(event: TimelineEvent) {
   if (event.type === "NOTE_ADDED") return "Note added.";
   return event.type;
 }
+
+
+

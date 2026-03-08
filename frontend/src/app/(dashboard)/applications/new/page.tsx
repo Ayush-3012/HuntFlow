@@ -7,6 +7,7 @@ import { generateApplicationWithAI, GeneratedApplicationResult } from "@/lib/api
 import { fetchJobs } from "@/lib/api/job";
 import { fetchResumes } from "@/lib/api/resume";
 import { Job, Resume } from "@/types/application";
+import HourglassLoader from "@/components/ui/hourglass-loader";
 
 export default function GenerateApplicationPage() {
   const router = useRouter();
@@ -57,7 +58,7 @@ export default function GenerateApplicationPage() {
   };
 
   if (loading) {
-    return <div className="p-6 text-sm text-gray-500">Loading form...</div>;
+    return <HourglassLoader label="Loading form..." />;
   }
 
   return (
@@ -161,3 +162,5 @@ export default function GenerateApplicationPage() {
     </div>
   );
 }
+
+

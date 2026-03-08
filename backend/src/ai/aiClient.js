@@ -184,6 +184,7 @@ STRICT RULES:
 - Maximum 120 words.
 - Plain text only.
 - No placeholders, no brackets, no markdown.
+- Do NOT include a subject line in the email body.
 
 ROLE: ${jobProfile}
 COMPANY: ${jobCompany}
