@@ -18,7 +18,6 @@ import {
 type HeaderProps = {
   isDesktopSidebarCollapsed: boolean;
   onToggleDesktopSidebar: () => void;
-  onOpenMobileSidebar: () => void;
 };
 
 type PageMeta = {
@@ -46,7 +45,6 @@ function getPageMeta(pathname: string): PageMeta {
 export default function Header({
   isDesktopSidebarCollapsed,
   onToggleDesktopSidebar,
-  onOpenMobileSidebar,
 }: HeaderProps) {
   const pathname = usePathname();
   const meta = getPageMeta(pathname);
@@ -56,15 +54,6 @@ export default function Header({
     <header className="border-b border-white/40 bg-white/60 px-4 backdrop-blur-xl sm:px-6">
       <div className="flex h-16 items-center justify-between gap-3">
         <div className="flex items-center gap-2 sm:gap-3">
-          <button
-            type="button"
-            onClick={onOpenMobileSidebar}
-            className="inline-flex cursor-pointer rounded-lg border border-slate-200/80 bg-white/80 p-2 text-slate-700 shadow-sm hover:bg-white md:hidden"
-            aria-label="Open sidebar"
-          >
-            <PanelLeft size={18} />
-          </button>
-
           <button
             type="button"
             onClick={onToggleDesktopSidebar}

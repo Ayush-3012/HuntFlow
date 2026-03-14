@@ -9,16 +9,11 @@ export default function DashboardShellLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [desktopSidebarCollapsed, setDesktopSidebarCollapsed] = useState(false);
 
   return (
     <div className="flex h-screen bg-gray-50">
-      <Sidebar
-        collapsed={desktopSidebarCollapsed}
-        mobileOpen={mobileSidebarOpen}
-        onCloseMobile={() => setMobileSidebarOpen(false)}
-      />
+      <Sidebar collapsed={desktopSidebarCollapsed} />
 
       <div className="flex min-w-0 flex-1 flex-col">
         <Header
@@ -26,7 +21,6 @@ export default function DashboardShellLayout({
           onToggleDesktopSidebar={() =>
             setDesktopSidebarCollapsed((prev) => !prev)
           }
-          onOpenMobileSidebar={() => setMobileSidebarOpen(true)}
         />
         <main className="flex-1 overflow-y-auto p-4 sm:p-6">{children}</main>
       </div>

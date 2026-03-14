@@ -12,13 +12,10 @@ import {
   Orbit,
   Settings,
   Sparkles,
-  X,
 } from "lucide-react";
 
 type SidebarProps = {
   collapsed: boolean;
-  mobileOpen: boolean;
-  onCloseMobile: () => void;
 };
 
 type NavItem = {
@@ -37,35 +34,13 @@ const navItems: NavItem[] = [
   { name: "Settings", href: "", icon: Settings, comingSoon: true },
 ];
 
-export default function Sidebar({
-  collapsed,
-  mobileOpen,
-  onCloseMobile,
-}: SidebarProps) {
+export default function Sidebar({ collapsed }: SidebarProps) {
   const pathname = usePathname();
 
   return (
     <>
-      {mobileOpen ? (
-        <button
-          type="button"
-          aria-label="Close sidebar overlay"
-          className="fixed inset-0 z-40 bg-black/45 backdrop-blur-[1px] md:hidden"
-          onClick={onCloseMobile}
-        />
-      ) : null}
-
-      <aside
-        className={`fixed inset-y-0 left-0 z-50 w-72 transform border-r border-indigo-200/35 bg-[linear-gradient(160deg,#1f2452_0%,#2f2f6a_42%,#3f3b86_72%,#5b4ca7_100%)] p-4 text-white shadow-[0_18px_48px_rgba(20,18,60,0.45)] transition-transform duration-200 md:hidden ${
-          mobileOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
-      >
-        <SidebarContent
-          collapsed={false}
-          pathname={pathname}
-          onNavigate={onCloseMobile}
-          mobileMode
-        />
+      <aside className="relative flex h-full w-20 flex-col border-r border-indigo-200/35 bg-[linear-gradient(160deg,#1f2452_0%,#2f2f6a_42%,#3f3b86_72%,#5b4ca7_100%)] p-4 text-white shadow-[0_14px_40px_rgba(25,20,70,0.38)] md:hidden">
+        <SidebarContent collapsed pathname={pathname} />
       </aside>
 
       <aside
@@ -83,14 +58,12 @@ function SidebarContent({
   collapsed,
   pathname,
   onNavigate,
-  mobileMode = false,
 }: {
   collapsed: boolean;
   pathname: string;
   onNavigate?: () => void;
-  mobileMode?: boolean;
 }) {
-  const showCollapsedTooltip = collapsed && !mobileMode;
+  const showCollapsedTooltip = collapsed;
 
   return (
     <>
@@ -108,24 +81,13 @@ function SidebarContent({
           <span className="grid h-9 w-9 place-items-center rounded-xl bg-white/15 ring-1 ring-white/20">
             <Orbit size={18} className="text-indigo-100" />
           </span>
-          {collapsed && !mobileMode ? null : (
+          {collapsed ? null : (
             <span className="text-2xl font-semibold tracking-tight text-white">HuntFlow</span>
           )}
         </Link>
-
-        {mobileMode ? (
-          <button
-            type="button"
-            onClick={onNavigate}
-            className="rounded-lg border border-white/20 bg-white/10 p-1.5 text-indigo-50 hover:bg-white/20"
-            aria-label="Close sidebar"
-          >
-            <X size={18} />
-          </button>
-        ) : null}
       </div>
 
-      {collapsed && !mobileMode ? null : (
+      {collapsed ? null : (
         <div className="relative mb-4 flex items-center gap-2 rounded-xl border border-white/15 bg-white/10 px-3 py-2 text-xs text-indigo-100">
           <Sparkles size={14} className="text-cyan-200" />
           Space mode active
@@ -145,7 +107,7 @@ function SidebarContent({
                   disabled
                   title={item.name}
                   className={`w-full rounded-xl border border-dashed border-white/20 bg-white/5 px-3 py-2 text-indigo-100/70 ${
-                    collapsed && !mobileMode
+                    collapsed
                       ? "flex items-center justify-center"
                       : "flex items-center justify-between gap-3"
                   } cursor-not-allowed`}
@@ -154,9 +116,9 @@ function SidebarContent({
                     <span className="grid h-7 w-7 place-items-center rounded-lg bg-white/10">
                       <Icon size={16} />
                     </span>
-                    {collapsed && !mobileMode ? null : item.name}
+                    {collapsed ? null : item.name}
                   </span>
-                  {collapsed && !mobileMode ? null : (
+                  {collapsed ? null : (
                     <span className="text-[10px] uppercase tracking-wide text-indigo-200/75">
                       Coming soon
                     </span>
@@ -177,7 +139,7 @@ function SidebarContent({
                 onClick={onNavigate}
                 title={item.name}
                 className={`rounded-xl px-3 py-2 transition-all duration-150 ${
-                  collapsed && !mobileMode
+                  collapsed
                     ? "flex items-center justify-center"
                     : "flex items-center gap-3"
                 } ${
@@ -195,7 +157,7 @@ function SidebarContent({
                 >
                   <Icon size={16} />
                 </span>
-                {collapsed && !mobileMode ? null : (
+                {collapsed ? null : (
                   <span className="text-[15px] font-medium tracking-tight">{item.name}</span>
                 )}
               </Link>

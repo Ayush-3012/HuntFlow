@@ -28,7 +28,7 @@ export default function ViewModeToggle({
         }`}
       >
         <Table2 className="h-4 w-4" />
-        Table
+        <span className="max-md:hidden">Table</span>
       </button>
       <button
         type="button"
@@ -40,7 +40,7 @@ export default function ViewModeToggle({
         }`}
       >
         <LayoutGrid className="h-4 w-4" />
-        Card
+        <span className="max-md:hidden">Card</span>
       </button>
     </div>
   );

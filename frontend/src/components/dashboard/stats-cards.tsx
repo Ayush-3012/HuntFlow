@@ -76,20 +76,20 @@ export default function StatsCards({ applications }: Props) {
             initial={{ opacity: 0, y: 18, filter: "blur(4px)" }}
             animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
             transition={{ duration: 0.34, delay: index * 0.06, ease: "easeOut" }}
-            className="rounded-2xl border border-white/45 bg-white/70 p-4 shadow-[0_12px_40px_rgba(76,48,160,0.12)] backdrop-blur-xl sm:p-5"
+            className="rounded-2xl border border-white/45 bg-white/70 p-4 shadow-[0_12px_40px_rgba(76,48,160,0.12)] backdrop-blur-xl max-md:p-3 max-md:rounded-lg"
           >
-            <div className="flex items-start justify-between gap-3">
+            <div className="flex items-start justify-between gap-3 max-md:gap-2">
               <div>
                 <p className="text-sm text-slate-600">{stat.title}</p>
-                <h3 className="mt-1 text-4xl font-bold leading-none text-slate-900">
+                <h3 className="mt-1 text-4xl font-bold leading-none max-md:text-3xl max-sm:text-2xl text-slate-900">
                   {stat.value}
                 </h3>
               </div>
 
               <div
-                className={`flex h-12 w-12 items-center justify-center rounded-2xl ${stat.iconWrap}`}
+                className={`flex h-12 w-12 items-center justify-center rounded-2xl max-md:rounded-md max-md:h-8 max-md:w-8 ${stat.iconWrap}`}
               >
-                <Icon className="h-5 w-5" />
+                <Icon className="h-5 w-5 max-md:h-4 max-md:w-4" />
               </div>
             </div>
 
