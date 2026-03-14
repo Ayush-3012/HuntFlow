@@ -5,7 +5,7 @@ import { errorMiddleware } from "./middlewares/error.middleware.js";
 
 const app = express();
 
-const allowedOrigins = ['http://localhost:3000'];
+const allowedOrigins = ['http://localhost:3000', 'https://huntflow-ayush3012.vercel.app'];
 
 app.use(cors({
     origin: (origin, callback) => {

@@ -1,0 +1,335 @@
+[
+  {
+  "id": "huntflow",
+  "name": "HuntFlow",
+  "type": ["frontend", "backend", "fullstack", "gen-ai"],
+  "techStack": [
+    "Next.js",
+    "React",
+    "TypeScript",
+    "Node.js",
+    "Express",
+    "MongoDB",
+    "AWS S3",
+    "SendGrid",
+    "SMTP Mail",
+    "OpenRouter",
+    "PDFKit",
+    "Tailwind CSS"
+  ],
+  "repoUrl": "https://github.com/Ayush-3012/HuntFlow",
+  "liveUrl": "https://huntflow-ayush3012.vercel.app",
+  "bullets": [
+    "Built an AI-powered job application automation platform",
+    "Automatically generates tailored resumes and outreach emails based on job descriptions",
+    "Implemented resume versioning, application lifecycle tracking, and recruiter interaction logs",
+    "Integrated OpenRouter AI, AWS S3 for document storage, and SendGrid/SMTP Mail for email automation"
+  ]
+},
+{
+  "id": "extracto",
+  "name": "Extracto",
+  "type": ["backend", "gen-ai", "rag"],
+  "techStack": [
+    "Node.js",
+    "Express",
+    "LangChain",
+    "Pinecone Vector DB",
+    "Claude AI",
+    "Groq",
+    "Transformers.js",
+    "MongoDB",
+    "PDF.js"
+  ],
+  "repoUrl": "https://github.com/Ayush-3012/Extracto",
+  "bullets": [
+    "Developed a RAG-based document intelligence system for insurance policies",
+    "Implemented document ingestion pipeline with PDF parsing, chunking, and embeddings",
+    "Stored vector embeddings in Pinecone for semantic search and contextual retrieval",
+    "Integrated Claude AI to extract and answer policy-related queries with high contextual accuracy"
+  ]
+},
+{
+  "id": "collaborative-task-manager",
+  "name": "Collaborative Task Manager",
+  "type": ["frontend", "backend", "fullstack"],
+  "techStack": [
+    "React",
+    "TypeScript",
+    "Node.js",
+    "Express",
+    "Prisma",
+    "MongoDB",
+    "Socket.io",
+    "Tailwind CSS",
+    "React Query",
+    "Framer Motion"
+  ],
+  "repoUrl": "https://github.com/Ayush-3012/collaborative-task-manager",
+  "liveUrl": "https://collaborative-task-manager-pi.vercel.app/",
+  "bullets": [
+    "Built a production-ready collaborative task management platform with real-time updates",
+    "Implemented secure authentication using JWT and protected API routes",
+    "Enabled live task updates and assignment notifications using Socket.io",
+    "Designed a responsive dashboard with filtering, sorting, and real-time collaboration features"
+  ]
+},
+  {
+    "id": "codecircle",
+    "name": "CodeCircle",
+    "type": ["frontend", "backend", "fullstack"],
+    "techStack": [
+      "Next.js",
+      "React",
+      "TypeScript",
+      "Prisma",
+      "Socket.io",
+      "MongoDB",
+      "Tailwind CSS",
+      "Cloudinary"
+    ],
+    "repoUrl": "https://github.com/Ayush-3012/CodeCircle",
+    "liveUrl": "https://codecircle-iozo.onrender.com/",
+    "bullets": [
+      "Built a developer-focused social platform for posts, comments, and discussions",
+      "Implemented real-time chat and interactions using Socket.io",
+      "Designed responsive UI using Next.js and Tailwind CSS",
+      "Optimized database queries and data handling with Prisma ORM"
+    ]
+  },
+  {
+    "id": "hireme",
+    "name": "HireMe",
+    "type": ["frontend", "backend", "fullstack"],
+    "techStack": [
+      "MongoDB",
+      "Express.js",
+      "React",
+      "Node.js",
+      "JWT",
+      "Socket.io",
+      "Tailwind CSS",
+      "Framer Motion"
+    ],
+    "repoUrl": "https://github.com/Ayush-3012/HireMe",
+    "liveUrl": "https://hire-me-ayush-3012.vercel.app/",
+    "bullets": [
+      "Developed a role-based job portal for employers and job seekers",
+      "Implemented secure authentication using JWT and role-based access",
+      "Integrated one-on-one chat using socket.io",
+      "Created responsive dashboards using React and Tailwind CSS"
+    ]
+  },
+  {
+    "id": "dsa-cracker",
+    "name": "DSA Cracker",
+    "type": ["frontend", "backend", "fullstack"],
+    "techStack": ["MongoDB", "Express.js", "React", "Node.js", "Tailwind CSS"],
+    "repoUrl": "https://github.com/Ayush-3012/DsaCracker",
+    "liveUrl": "https://dsa-cracker-ayush-3012.vercel.app/",
+    "bullets": [
+      "Built a platform for practicing and tracking DSA problems",
+      "Implemented authentication and protected routes",
+      "Designed a clean and responsive UI for problem navigation",
+      "Structured problem sets to support placement preparation"
+    ]
+  },
+  {
+    "id": "box-office-nextjs",
+    "name": "Box Office (Next.js)",
+    "type": ["frontend"],
+    "techStack": ["Next.js", "React", "Redux", "Tailwind CSS"],
+    "repoUrl": "https://github.com/Ayush-3012/box-office-nextjs",
+    "liveUrl": "https://box-office-nextjs.vercel.app/",
+    "bullets": [
+      "Rebuilt movie explorer using Next.js for improved performance",
+      "Implemented server-side rendering for faster page loads",
+      "Managed global state using Redux"
+    ]
+  },
+  {
+    "id": "portfolio-next",
+    "name": "Portfolio (Next.js)",
+    "type": ["frontend"],
+    "techStack": [
+      "Next.js",
+      "React",
+      "Tailwind CSS",
+      "Framer Motion",
+      "Vercel"
+    ],
+    "repoUrl": "https://github.com/Ayush-3012/portfolio-3.O",
+    "liveUrl": "https://portfolio-ayush3012.vercel.app/",
+    "bullets": [
+      "Designed and developed a personal portfolio using Next.js",
+      "Showcased projects, skills, and experience in a clean UI",
+      "Added smooth animations using Framer Motion"
+    ]
+  },
+  {
+    "id": "shoppyglobe",
+    "name": "ShoppyGlobe",
+    "type": ["frontend"],
+    "techStack": ["React", "Redux", "Tailwind CSS", "Framer Motion"],
+    "repoUrl": "https://github.com/Ayush-3012/ShoppyGlobe-Ayush3012/tree/main/frontend",
+    "liveUrl": "https://shoppy-globe-ayush3012.vercel.app/",
+    "bullets": [
+      "Built an e-commerce frontend with product listing and cart features",
+      "Implemented state management using Redux Toolkit",
+      "Designed responsive UI components with Tailwind CSS"
+    ]
+  },
+  {
+    "id": "beyondchat-ai",
+    "name": "BeyondChat AI Bot",
+    "type": ["frontend"],
+    "techStack": ["React", "Tailwind CSS", "OpenRouter", "Mistral AI"],
+    "repoUrl": "https://github.com/Ayush-3012/beyondChats-aiBot",
+    "liveUrl": "https://beyond-chats-ai-bot.vercel.app/",
+    "bullets": [
+      "Developed an AI-powered chatbot interface using React",
+      "Integrated AI responses via OpenRouter APIs",
+      "Designed a minimal and responsive chat UI"
+    ]
+  },
+  {
+    "id": "e-library",
+    "name": "E-Library",
+    "type": ["frontend"],
+    "techStack": ["React", "Redux", "Tailwind CSS", "Framer Motion"],
+    "repoUrl": "https://github.com/Ayush-3012/e-library",
+    "liveUrl": "https://e-library-ayush-3012.vercel.app/",
+    "bullets": [
+      "Built a digital library interface for exploring and managing books",
+      "Implemented navigation and UI animations",
+      "Designed responsive layouts using Tailwind CSS"
+    ]
+  },
+  {
+    "id": "hackers-press",
+    "name": "Hacker's Press",
+    "type": ["frontend"],
+    "techStack": ["React", "Axios", "REST API"],
+    "repoUrl": "https://github.com/Ayush-3012/Today-sHackers",
+    "liveUrl": "https://today-s-hackers.vercel.app/",
+    "bullets": [
+      "Developed a news reader app focused on cybersecurity topics",
+      "Fetched and displayed data using REST APIs",
+      "Built a simple and readable UI using React"
+    ]
+  },
+  {
+    "id": "todays-press",
+    "name": "Today's Press",
+    "type": ["frontend"],
+    "techStack": ["HTML", "CSS", "JavaScript", "REST API"],
+    "repoUrl": "https://github.com/Ayush-3012/TodaysPress/",
+    "bullets": [
+      "Built a news aggregation site using HTML, CSS, and JavaScript",
+      "Fetched live news data from public APIs",
+      "Displayed categorized news content dynamically"
+    ]
+  },
+  {
+    "id": "joke-generator",
+    "name": "Joke Generator",
+    "type": ["frontend"],
+    "techStack": ["HTML", "CSS", "JavaScript", "Tailwind CSS", "REST API"],
+    "repoUrl": "https://github.com/Ayush-3012/Joke-Generator/",
+    "liveUrl": "https://ayush-3012.github.io/Joke-Generator/",
+    "bullets": [
+      "Built a web app that fetches and displays random jokes",
+      "Integrated third-party APIs for dynamic content",
+      "Styled the UI using Tailwind CSS"
+    ]
+  },
+  {
+    "id": "simon-game",
+    "name": "Simon Game",
+    "type": ["frontend"],
+    "techStack": ["HTML", "CSS", "JavaScript", "jQuery"],
+    "repoUrl": "https://github.com/Ayush-3012/simon-game/",
+    "liveUrl": "https://ayush-3012.github.io/simon-game/",
+    "bullets": [
+      "Implemented the classic Simon memory game using JavaScript",
+      "Handled user interactions and game logic",
+      "Built responsive UI using HTML and CSS"
+    ]
+  },
+  {
+    "id": "portfolio-ejs",
+    "name": "Portfolio (EJS)",
+    "type": ["frontend", "backend"],
+    "techStack": [
+      "HTML",
+      "CSS",
+      "SCSS",
+      "JavaScript",
+      "Node.js",
+      "Express.js",
+      "EJS"
+    ],
+    "repoUrl": "https://github.com/Ayush-3012/Portfolio",
+    "liveUrl": "https://ayush-kumar-portfolio.vercel.app/",
+    "bullets": [
+      "Built an earlier version of personal portfolio using EJS",
+      "Rendered dynamic views using Express.js",
+      "Styled layouts using SCSS"
+    ]
+  },
+  {
+    "id": "todo-ejs",
+    "name": "ToDo List",
+    "type": ["backend", "fullstack"],
+    "techStack": ["Node.js", "Express.js", "MongoDB", "EJS"],
+    "repoUrl": "https://github.com/Ayush-3012/todoList",
+    "bullets": [
+      "Developed a task management app using Node.js and Express",
+      "Stored tasks in MongoDB",
+      "Rendered views using EJS templates"
+    ]
+  },
+  {
+    "id": "handwritten-digit-ml",
+    "name": "Handwritten Digit Recognition",
+    "type": ["ml"],
+    "techStack": [
+      "Python",
+      "NumPy",
+      "Pandas",
+      "TensorFlow",
+      "Keras",
+      "Scikit-learn"
+    ],
+    "liveUrl": "https://drive.google.com/file/d/1hwobS5Cp5y4zeBsi6ub-vA-UQxh03YlT/view",
+    "bullets": [
+      "Built a machine learning model to recognize handwritten digits (0–9)",
+      "Preprocessed image data and trained neural networks",
+      "Evaluated model performance using standard ML techniques"
+    ]
+  },
+  {
+    "id": "weather-prediction-ml",
+    "name": "Weather Prediction",
+    "type": ["ml"],
+    "techStack": ["Python", "Pandas", "Scikit-learn", "Matplotlib", "Seaborn"],
+    "liveUrl": "https://drive.google.com/file/d/1krYwykopT_Z43vLRsA5LlxehgwROzS0e/view",
+    "bullets": [
+      "Analyzed historical weather data for prediction",
+      "Built prediction models using Scikit-learn",
+      "Visualized trends and results using Matplotlib"
+    ]
+  },
+  {
+    "id": "playstore-analysis",
+    "name": "Playstore Analysis",
+    "type": ["data"],
+    "techStack": ["Python", "Pandas", "NumPy", "Matplotlib"],
+    "liveUrl": "https://docs.google.com/document/d/1iCdMTlTb0fBrbMHC9lXJpdQxZD83pQEc/edit",
+    "bullets": [
+      "Analyzed Play Store dataset for insights",
+      "Cleaned and visualized data using Python libraries",
+      "Presented findings using charts and plots"
+    ]
+  }
+]
