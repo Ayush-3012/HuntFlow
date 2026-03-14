@@ -145,7 +145,7 @@ export default function NewJobPage() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full bg-blue-600 text-white py-3 rounded-lg font-medium hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed"
+            className="w-full bg-linear-to-r from-indigo-600 to-blue-600 cursor-pointer text-white py-3 rounded-lg font-medium hover:from-indigo-700 hover:to-blue-700 disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {isSubmitting ? "Saving..." : "Save Job"}
           </button>

@@ -116,7 +116,7 @@ export default function GenerateApplicationPage() {
         <button
           type="submit"
           disabled={submitting}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-blue-700 disabled:opacity-60"
+          className="bg-linear-to-r from-indigo-600 to-blue-600 text-white cursor-pointer px-4 py-2 rounded-lg text-sm hover:from-indigo-700 hover:to-blue-700 disabled:opacity-60"
         >
           {submitting ? "Generating..." : "Generate Application"}
         </button>
