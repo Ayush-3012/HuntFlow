@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
+import { motion } from "framer-motion";
 import { X } from "lucide-react";
 import {
   deleteApplication,
@@ -83,11 +84,14 @@ export default function ApplicationDetailPage() {
 
   const timelineItems = useMemo(() => {
     return [...timeline]
-      .sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
       .map((event) => ({
         id: event._id,
         label: formatEventLabel(event),
-        timestamp: new Date(event.createdAt).toLocaleString(),
+        timestamp: new Date(event.createdAt).toLocaleString(undefined, {
+          dateStyle: "medium",
+          timeStyle: "short",
+        }),
       }));
   }, [timeline]);
 
@@ -258,22 +262,38 @@ export default function ApplicationDetailPage() {
       </div>
 
       <div className="bg-white border rounded-xl p-6">
-        <h2 className="font-semibold mb-6">Application Timeline</h2>
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <h2 className="font-semibold">Application Timeline</h2>
+          <span className="text-xs text-gray-500">Latest first</span>
+        </div>
 
         {timelineItems.length === 0 ? (
           <p className="text-sm text-gray-500">No timeline events yet.</p>
         ) : (
-          <ul className="space-y-5">
-            {timelineItems.map((item) => (
-              <li key={item.id} className="flex gap-3">
-                <div className="mt-1 h-3 w-3 rounded-full bg-blue-600" />
-                <div>
-                  <p className="text-sm text-gray-700">{item.label}</p>
-                  <p className="text-xs text-gray-500 mt-1">{item.timestamp}</p>
-                </div>
-              </li>
-            ))}
-          </ul>
+          <div className="overflow-x-auto pb-2">
+            <ul className="flex min-w-max">
+              {timelineItems.map((item, index) => (
+                <li key={item.id} className="relative w-72 shrink-0 pr-6">
+                  {index !== timelineItems.length - 1 ? (
+                    <span className="absolute left-5 right-0 top-4 h-0.5 bg-blue-200" />
+                  ) : null}
+
+                  <motion.div
+                    initial={{ opacity: 0, x: 18 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.22, delay: index * 0.04 }}
+                    className="rounded-lg border border-blue-100 bg-blue-50/40 p-3"
+                  >
+                    <div className="mb-2 flex items-start gap-2">
+                      <span className="mt-1 h-3 w-3 shrink-0 rounded-full bg-blue-600 ring-4 ring-blue-100" />
+                      <p className="line-clamp-2 text-sm text-gray-700">{item.label}</p>
+                    </div>
+                    <p className="text-xs text-gray-500">{item.timestamp}</p>
+                  </motion.div>
+                </li>
+              ))}
+            </ul>
+          </div>
         )}
       </div>
 
@@ -338,3 +358,8 @@ function formatEventLabel(event: TimelineEvent) {
   if (event.type === "NOTE_ADDED") return "Note added.";
   return event.type;
 }
+
+
+
+
+

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import {
   Briefcase,
@@ -8,6 +9,7 @@ import {
   CalendarDays,
   Eye,
   MessageSquareText,
+  Search,
   Send,
   X,
 } from "lucide-react";
@@ -17,14 +19,23 @@ import SortIndicator from "@/components/ui/sort-indicator";
 import HourglassLoader from "@/components/ui/hourglass-loader";
 import DataRowCard from "@/components/ui/data-row-card";
 import ViewModeToggle from "@/components/ui/view-mode-toggle";
+import PaginationControls from "@/components/ui/pagination-controls";
 import { useViewMode } from "@/hooks/use-view-mode";
+import { buildSearchTokens, matchesSearchTokens } from "@/lib/search";
 
 type MessageSortKey = "company" | "role" | "message" | "updatedAt";
 
+const PAGE_SIZE = 9;
+
 export default function MessagesPage() {
+  const searchParams = useSearchParams();
+  const globalQuery = (searchParams.get("q") ?? "").trim();
+
   const [messages, setMessages] = useState<ColdMessageRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [tableSearch, setTableSearch] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
   const [previewMessage, setPreviewMessage] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState<MessageSortKey>("updatedAt");
   const [sortDir, setSortDir] = useState<"asc" | "desc">("desc");
@@ -58,6 +69,19 @@ export default function MessagesPage() {
     setSortDir("asc");
   };
 
+  const searchTokens = useMemo(() => buildSearchTokens(globalQuery, tableSearch), [globalQuery, tableSearch]);
+
+  const filteredMessages = useMemo(() => {
+    return messages.filter((message) =>
+      matchesSearchTokens(searchTokens, [
+        message.applicationId?.jobId?.jobCompany,
+        message.applicationId?.jobId?.jobProfile,
+        message.message,
+        new Date(message.updatedAt).toLocaleDateString(),
+      ])
+    );
+  }, [messages, searchTokens]);
+
   const sortedMessages = useMemo(() => {
     const getValue = (message: ColdMessageRecord) => {
       if (sortBy === "company") return message.applicationId?.jobId?.jobCompany?.toLowerCase() ?? "";
@@ -66,14 +90,31 @@ export default function MessagesPage() {
       return new Date(message.updatedAt).getTime();
     };
 
-    return [...messages].sort((a, b) => {
+    return [...filteredMessages].sort((a, b) => {
       const aValue = getValue(a);
       const bValue = getValue(b);
       if (aValue === bValue) return 0;
       const result = aValue > bValue ? 1 : -1;
       return sortDir === "asc" ? result : -result;
     });
-  }, [messages, sortBy, sortDir]);
+  }, [filteredMessages, sortBy, sortDir]);
+
+  const totalPages = Math.max(1, Math.ceil(sortedMessages.length / PAGE_SIZE));
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [tableSearch, globalQuery, sortBy, sortDir]);
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
+
+  const paginatedMessages = useMemo(() => {
+    const start = (currentPage - 1) * PAGE_SIZE;
+    return sortedMessages.slice(start, start + PAGE_SIZE);
+  }, [sortedMessages, currentPage]);
 
   if (loading) {
     return <HourglassLoader label="Loading messages..." />;
@@ -93,131 +134,165 @@ export default function MessagesPage() {
         <ViewModeToggle value={viewMode} onChange={setViewMode} />
       </div>
 
+      <div className="flex flex-wrap items-center gap-3">
+        <label className="relative w-full max-w-md">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+          <input
+            type="text"
+            value={tableSearch}
+            onChange={(event) => setTableSearch(event.target.value)}
+            placeholder="Search in Messages table..."
+            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 pl-9 text-sm text-slate-700 outline-none focus:border-indigo-300 focus:ring-2 focus:ring-indigo-200"
+          />
+        </label>
+        {globalQuery ? <span className="text-xs text-slate-500">Global filter: <span className="font-medium">{globalQuery}</span></span> : null}
+      </div>
+
       {viewMode === "table" ? (
         <div className="overflow-x-auto rounded-2xl border border-white/45 bg-white/70 shadow-[0_16px_46px_rgba(76,48,160,0.14)] backdrop-blur-xl">
           {sortedMessages.length === 0 ? (
-            <div className="p-6 text-sm text-gray-500">No messages found.</div>
+            <div className="p-6 text-sm text-gray-500">No messages found for current search.</div>
           ) : (
-            <table className="min-w-262.5 w-full text-sm">
-              <thead className="bg-white/50 text-slate-600">
-                <tr>
-                  <th className="px-6 py-3 text-left">
-                    <button className="inline-flex items-center gap-1 font-medium hover:underline" onClick={() => handleSort("company")}>
-                      Company <span className="text-xs text-gray-500">{sortIndicator("company")}</span>
-                    </button>
-                  </th>
-                  <th className="px-6 py-3 text-left">
-                    <button className="inline-flex items-center gap-1 font-medium hover:underline" onClick={() => handleSort("role")}>
-                      Role <span className="text-xs text-gray-500">{sortIndicator("role")}</span>
-                    </button>
-                  </th>
-                  <th className="px-6 py-3 text-left">
-                    <button className="inline-flex items-center gap-1 font-medium hover:underline" onClick={() => handleSort("message")}>
-                      Message <span className="text-xs text-gray-500">{sortIndicator("message")}</span>
-                    </button>
-                  </th>
-                  <th className="px-6 py-3 text-left">
-                    <button className="inline-flex items-center gap-1 font-medium hover:underline" onClick={() => handleSort("updatedAt")}>
-                      Updated <span className="text-xs text-gray-500">{sortIndicator("updatedAt")}</span>
-                    </button>
-                  </th>
-                  <th className="px-6 py-3 text-left">Application</th>
-                </tr>
-              </thead>
-              <tbody>
-                {sortedMessages.map((item) => (
-                  <tr key={item._id} className="border-t border-white/55 align-top transition hover:bg-white/55">
-                    <td className="px-6 py-4 font-medium text-slate-900">
-                      <span className="inline-flex items-center gap-2">
-                        <Building2 className="h-4 w-4 text-indigo-500" />
-                        {item.applicationId?.jobId?.jobCompany ?? "N/A"}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-slate-700">
-                      <span className="inline-flex items-center gap-2">
-                        <Briefcase className="h-4 w-4 text-blue-500" />
-                        {item.applicationId?.jobId?.jobProfile ?? "N/A"}
-                      </span>
-                    </td>
-                    <td className="max-w-64 px-6 py-4">
-                      <p className="line-clamp-2 text-gray-700">
-                        <span className="mr-2 inline-flex align-middle">
-                          <MessageSquareText className="h-4 w-4 text-violet-500" />
-                        </span>
-                        {item.message}
-                      </p>
-                      <button
-                        type="button"
-                        onClick={() => setPreviewMessage(item.message)}
-                        className="mt-2 inline-flex gap-0.5 items-center text-sm text-blue-700 cursor-pointer hover:text-blue-900 hover:underline"
-                      >
-                        <Eye className="h-3.5 w-3.5" /> View Full
+            <>
+              <table className="min-w-262.5 w-full text-sm">
+                <thead className="bg-white/50 text-slate-600">
+                  <tr>
+                    <th className="px-6 py-3 text-left">
+                      <button className="inline-flex items-center gap-1 font-medium hover:underline" onClick={() => handleSort("company")}>
+                        Company <span className="text-xs text-gray-500">{sortIndicator("company")}</span>
                       </button>
-                    </td>
-                    <td className="px-6 py-4 text-gray-500">
+                    </th>
+                    <th className="px-6 py-3 text-left">
+                      <button className="inline-flex items-center gap-1 font-medium hover:underline" onClick={() => handleSort("role")}>
+                        Role <span className="text-xs text-gray-500">{sortIndicator("role")}</span>
+                      </button>
+                    </th>
+                    <th className="px-6 py-3 text-left">
+                      <button className="inline-flex items-center gap-1 font-medium hover:underline" onClick={() => handleSort("message")}>
+                        Message <span className="text-xs text-gray-500">{sortIndicator("message")}</span>
+                      </button>
+                    </th>
+                    <th className="px-6 py-3 text-left">
+                      <button className="inline-flex items-center gap-1 font-medium hover:underline" onClick={() => handleSort("updatedAt")}>
+                        Updated <span className="text-xs text-gray-500">{sortIndicator("updatedAt")}</span>
+                      </button>
+                    </th>
+                    <th className="px-6 py-3 text-left">Application</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {paginatedMessages.map((item) => (
+                    <tr key={item._id} className="border-t border-white/55 align-top transition hover:bg-white/55">
+                      <td className="px-6 py-4 font-medium text-slate-900">
+                        <span className="inline-flex items-center gap-2">
+                          <Building2 className="h-4 w-4 text-indigo-500" />
+                          {item.applicationId?.jobId?.jobCompany ?? "N/A"}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-slate-700">
+                        <span className="inline-flex items-center gap-2">
+                          <Briefcase className="h-4 w-4 text-blue-500" />
+                          {item.applicationId?.jobId?.jobProfile ?? "N/A"}
+                        </span>
+                      </td>
+                      <td className="max-w-64 px-6 py-4">
+                        <p className="line-clamp-2 text-gray-700">
+                          <span className="mr-2 inline-flex align-middle">
+                            <MessageSquareText className="h-4 w-4 text-violet-500" />
+                          </span>
+                          {item.message}
+                        </p>
+                        <button
+                          type="button"
+                          onClick={() => setPreviewMessage(item.message)}
+                          className="mt-2 inline-flex gap-0.5 items-center text-sm text-blue-700 cursor-pointer hover:text-blue-900 hover:underline"
+                        >
+                          <Eye className="h-3.5 w-3.5" /> View Full
+                        </button>
+                      </td>
+                      <td className="px-6 py-4 text-gray-500">
+                        <span className="inline-flex items-center gap-2">
+                          <CalendarDays className="h-4 w-4 text-slate-400" />
+                          {new Date(item.updatedAt).toLocaleDateString()}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        {item.applicationId?._id ? (
+                          <Link href={`/applications/${item.applicationId._id}`} className="inline-flex items-center gap-0.5 text-blue-700 hover:text-blue-900 hover:underline">
+                            <Send className="h-3.5 w-3.5" /> Open
+                          </Link>
+                        ) : (
+                          <span className="text-gray-400">N/A</span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
+              <PaginationControls
+                currentPage={currentPage}
+                totalPages={totalPages}
+                totalItems={sortedMessages.length}
+                pageSize={PAGE_SIZE}
+                onPageChange={setCurrentPage}
+              />
+            </>
+          )}
+        </div>
+      ) : (
+        <div className="space-y-4">
+          <div className="grid auto-rows-fr grid-cols-1 gap-4 p-4 sm:p-6 md:grid-cols-2 xl:grid-cols-3">
+            {paginatedMessages.map((item) => (
+              <DataRowCard
+                key={item._id}
+                title={item.applicationId?.jobId?.jobCompany ?? "N/A"}
+                subtitle={item.applicationId?.jobId?.jobProfile ?? "N/A"}
+                icon={<Building2 className="h-4 w-4" />}
+                fieldsColumns={1}
+                className="h-full"
+                fields={[
+                  {
+                    label: "Message",
+                    value: <p className="line-clamp-4">{item.message}</p>,
+                  },
+                  {
+                    label: "Updated",
+                    value: (
                       <span className="inline-flex items-center gap-2">
                         <CalendarDays className="h-4 w-4 text-slate-400" />
                         {new Date(item.updatedAt).toLocaleDateString()}
                       </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      {item.applicationId?._id ? (
-                        <Link href={`/applications/${item.applicationId._id}`} className="inline-flex items-center gap-0.5 text-blue-700 hover:text-blue-900 hover:underline">
-                          <Send className="h-3.5 w-3.5" /> Open
-                        </Link>
-                      ) : (
-                        <span className="text-gray-400">N/A</span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </div>
-      ) : (
-        <div className="grid auto-rows-fr grid-cols-1 gap-4 p-4 sm:p-6 md:grid-cols-2 xl:grid-cols-3">
-          {sortedMessages.map((item) => (
-            <DataRowCard
-              key={item._id}
-              title={item.applicationId?.jobId?.jobCompany ?? "N/A"}
-              subtitle={item.applicationId?.jobId?.jobProfile ?? "N/A"}
-              icon={<Building2 className="h-4 w-4" />}
-              fieldsColumns={1}
-              className="h-full"
-              fields={[
-                {
-                  label: "Message",
-                  value: <p className="line-clamp-4">{item.message}</p>,
-                },
-                {
-                  label: "Updated",
-                  value: (
-                    <span className="inline-flex items-center gap-2">
-                      <CalendarDays className="h-4 w-4 text-slate-400" />
-                      {new Date(item.updatedAt).toLocaleDateString()}
-                    </span>
-                  ),
-                },
-              ]}
-              actions={
-                <>
-                  <button
-                    type="button"
-                    onClick={() => setPreviewMessage(item.message)}
-                    className="text-sm text-blue-700 cursor-pointer inline-flex gap-0.5 items-center hover:text-blue-900 hover:underline"
-                  >
-                    <Eye className="h-3.5 w-3.5" /> View Full
-                  </button>
-                  {item.applicationId?._id ? (
-                    <Link href={`/applications/${item.applicationId._id}`} className="inline-flex gap-0.5 items-center text-sm cursor-pointer text-blue-700 hover:text-blue-900 hover:underline">
-                      <Send className="h-3.5 w-3.5" /> Open Application
-                    </Link>
-                  ) : null}
-                </>
-              }
-            />
-          ))}
+                    ),
+                  },
+                ]}
+                actions={
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => setPreviewMessage(item.message)}
+                      className="text-sm text-blue-700 cursor-pointer inline-flex gap-0.5 items-center hover:text-blue-900 hover:underline"
+                    >
+                      <Eye className="h-3.5 w-3.5" /> View Full
+                    </button>
+                    {item.applicationId?._id ? (
+                      <Link href={`/applications/${item.applicationId._id}`} className="inline-flex gap-0.5 items-center text-sm cursor-pointer text-blue-700 hover:text-blue-900 hover:underline">
+                        <Send className="h-3.5 w-3.5" /> Open Application
+                      </Link>
+                    ) : null}
+                  </>
+                }
+              />
+            ))}
+          </div>
+
+          <PaginationControls
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={sortedMessages.length}
+            pageSize={PAGE_SIZE}
+            onPageChange={setCurrentPage}
+          />
         </div>
       )}
       {previewMessage ? (

@@ -2,7 +2,8 @@
 
 import type { ComponentType } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 import {
   Briefcase,
   FileText,
@@ -11,6 +12,7 @@ import {
   MessageSquare,
   PanelLeft,
   PanelLeftClose,
+  Search,
   Sparkles,
   Workflow,
 } from "lucide-react";
@@ -47,12 +49,45 @@ export default function Header({
   onToggleDesktopSidebar,
 }: HeaderProps) {
   const pathname = usePathname();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const searchParamsString = searchParams.toString();
+  const currentGlobalQuery = useMemo(() => searchParams.get("q") ?? "", [searchParams]);
+
+  const [globalSearch, setGlobalSearch] = useState(currentGlobalQuery);
+
+  useEffect(() => {
+    setGlobalSearch(currentGlobalQuery);
+  }, [currentGlobalQuery]);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (globalSearch === currentGlobalQuery) return;
+
+      const params = new URLSearchParams(searchParamsString);
+      const trimmed = globalSearch.trim();
+
+      if (trimmed) {
+        params.set("q", trimmed);
+      } else {
+        params.delete("q");
+      }
+
+      const queryString = params.toString();
+      router.replace(queryString ? `${pathname}?${queryString}` : pathname, {
+        scroll: false,
+      });
+    }, 250);
+
+    return () => clearTimeout(timeout);
+  }, [globalSearch, currentGlobalQuery, pathname, router, searchParamsString]);
+
   const meta = getPageMeta(pathname);
   const PageIcon = meta.icon;
 
   return (
     <header className="border-b border-white/40 bg-white/60 px-4 backdrop-blur-xl sm:px-6">
-      <div className="flex h-16 items-center justify-between gap-3">
+      <div className="flex min-h-16 flex-wrap items-center justify-between gap-3 py-3">
         <div className="flex items-center gap-2 sm:gap-3">
           <button
             type="button"
@@ -72,20 +107,24 @@ export default function Header({
           </div>
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex min-w-72 flex-1 items-center justify-end gap-3">
+          <label className="relative w-full max-w-sm">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <input
+              type="text"
+              value={globalSearch}
+              onChange={(e) => setGlobalSearch(e.target.value)}
+              placeholder="Global search across tables..."
+              className="w-full rounded-lg border border-slate-200 bg-white/90 py-2 pl-9 pr-3 text-sm text-slate-700 outline-none focus:border-indigo-300 focus:ring-2 focus:ring-indigo-200"
+            />
+          </label>
+
           <Link
             href="/applications/new"
-            className="rounded-lg bg-linear-to-r from-indigo-600 to-blue-600 px-3 py-2 text-xs font-medium text-white hover:from-indigo-700 hover:to-blue-700 sm:px-4 sm:text-sm"
+            className="shrink-0 rounded-lg bg-linear-to-r from-indigo-600 to-blue-600 px-3 py-2 text-xs font-medium text-white hover:from-indigo-700 hover:to-blue-700 sm:px-4 sm:text-sm"
           >
             <span className="hidden sm:inline">Generate AI Application</span>
             <span className="sm:hidden">Generate</span>
-          </Link>
-          <Link
-            href="/jobs/new"
-            className="rounded-lg border bg-linear-to-r border-slate-200 from-bg-white/85 to-white px-3 py-2 text-xs font-medium text-slate-700 hover:from-white hover:to-slate-100 sm:px-4 sm:text-sm"
-          >
-            <span className="hidden sm:inline">Add Job</span>
-            <span className="sm:hidden">+ Job</span>
           </Link>
         </div>
       </div>

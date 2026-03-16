@@ -1,8 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { FormEvent, useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { generateApplicationWithAI, GeneratedApplicationResult } from "@/lib/api/application";
 import { fetchJobs } from "@/lib/api/job";
 import { fetchResumes } from "@/lib/api/resume";
@@ -12,6 +11,7 @@ import { toast } from "@/lib/toast";
 
 export default function GenerateApplicationPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [jobs, setJobs] = useState<Job[]>([]);
   const [resumes, setResumes] = useState<Resume[]>([]);
   const [jobId, setJobId] = useState("");
@@ -25,8 +25,22 @@ export default function GenerateApplicationPage() {
     async function load() {
       try {
         const [jobsData, resumesData] = await Promise.all([fetchJobs(), fetchResumes()]);
-        setJobs(jobsData);
+
+        const latestFirstJobs = [...jobsData].sort(
+          (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+
+        setJobs(latestFirstJobs);
         setResumes(resumesData);
+
+        if (resumesData.length === 1) {
+          setResumeId(resumesData[0]._id);
+        }
+
+        const preselectedJobId = searchParams.get("jobId");
+        if (preselectedJobId && latestFirstJobs.some((job) => job._id === preselectedJobId)) {
+          setJobId(preselectedJobId);
+        }
       } catch {
         setError("Failed to load jobs or resumes.");
       } finally {
@@ -35,7 +49,7 @@ export default function GenerateApplicationPage() {
     }
 
     load();
-  }, []);
+  }, [searchParams]);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -97,9 +111,10 @@ export default function GenerateApplicationPage() {
             <select
               value={resumeId}
               onChange={(e) => setResumeId(e.target.value)}
-              className="w-full border rounded-lg px-3 py-2 text-sm"
+              disabled={resumes.length === 1}
+              className="w-full border rounded-lg px-3 py-2 text-sm disabled:bg-gray-100 disabled:text-gray-600"
             >
-              <option value="">Select a resume</option>
+              {resumes.length > 1 ? <option value="">Select a resume</option> : null}
               {resumes.map((resume) => (
                 <option key={resume._id} value={resume._id}>
                   {resume.title}
@@ -125,30 +140,31 @@ export default function GenerateApplicationPage() {
       {result ? (
         <div className="bg-white border rounded-xl p-6 space-y-3">
           <h2 className="font-semibold">Generated Output</h2>
-          <p className="text-sm text-gray-700">
+          <p className="text-base text-gray-700">
             Application created:{" "}
             <button
               onClick={() => router.push(`/applications/${result.applicationId}`)}
-              className="text-blue-600 hover:underline"
+              className="bg-linear-to-r from-indigo-600 to-blue-600 text-white cursor-pointer px-2 py-1 rounded-lg text-sm hover:from-indigo-700 hover:to-blue-700 disabled:opacity-60"
             >
               Open Application
             </button>
           </p>
-          <p className="text-sm text-gray-700">
-            Resume version: <span className="font-medium">{result.resumeVersion.version}</span>
-          </p>
-          <a
+          <p className="text-base text-gray-700">
+            Resume version: <span className="font-medium">{result.resumeVersion.version}</span>:{" "}
+             <a
             href={result.resumeVersion.fileUrl}
             target="_blank"
             rel="noreferrer"
-            className="text-sm text-blue-600 hover:underline inline-block"
+            className="bg-linear-to-r from-indigo-600 to-blue-600 text-white cursor-pointer px-2 py-1 rounded-lg text-sm hover:from-indigo-700 hover:to-blue-700 disabled:opacity-60"
           >
             Download Generated Resume PDF
           </a>
+          </p>
+         
           {result.mailDraft ? (
-            <p className="text-sm text-gray-700">Mail draft created for {result.mailDraft.to}</p>
+            <p className="text-base mt-2 text-gray-700">Mail draft created for {result.mailDraft.to}</p>
           ) : (
-            <p className="text-sm text-gray-500">No mail draft generated.</p>
+            <p className="text-base mt-2 text-gray-500">No mail draft generated.</p>
           )}
           {result.coldMessage ? (
             <div className="bg-gray-50 border rounded-lg p-3">
@@ -158,15 +174,11 @@ export default function GenerateApplicationPage() {
               </p>
             </div>
           ) : null}
-          <Link href={`/applications/${result.applicationId}`} className="text-blue-600 hover:underline text-sm">
-            Go to application details
-          </Link>
         </div>
       ) : null}
     </div>
   );
 }
-
 
 
 

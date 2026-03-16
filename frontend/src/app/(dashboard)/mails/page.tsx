@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import {
   AtSign,
@@ -9,6 +10,7 @@ import {
   CalendarDays,
   Eye,
   MailOpen,
+  Search,
   Send,
   X,
 } from "lucide-react";
@@ -19,14 +21,23 @@ import HourglassLoader from "@/components/ui/hourglass-loader";
 import { toast } from "@/lib/toast";
 import DataRowCard from "@/components/ui/data-row-card";
 import ViewModeToggle from "@/components/ui/view-mode-toggle";
+import PaginationControls from "@/components/ui/pagination-controls";
 import { useViewMode } from "@/hooks/use-view-mode";
+import { buildSearchTokens, matchesSearchTokens } from "@/lib/search";
 
 type MailSortKey = "company" | "role" | "to" | "subject" | "status" | "updatedAt";
 
+const PAGE_SIZE = 9;
+
 export default function MailsPage() {
+  const searchParams = useSearchParams();
+  const globalQuery = (searchParams.get("q") ?? "").trim();
+
   const [mails, setMails] = useState<MailRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [tableSearch, setTableSearch] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
   const [actionError, setActionError] = useState<string | null>(null);
   const [sendingMailId, setSendingMailId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
@@ -62,6 +73,23 @@ export default function MailsPage() {
     setSortDir("asc");
   };
 
+  const searchTokens = useMemo(() => buildSearchTokens(globalQuery, tableSearch), [globalQuery, tableSearch]);
+
+  const filteredMails = useMemo(() => {
+    return mails.filter((mail) =>
+      matchesSearchTokens(searchTokens, [
+        mail.applicationId?.jobId?.jobCompany,
+        mail.applicationId?.jobId?.jobProfile,
+        mail.to,
+        mail.subject,
+        mail.body,
+        mail.status,
+        mail.error,
+        new Date(mail.updatedAt).toLocaleDateString(),
+      ])
+    );
+  }, [mails, searchTokens]);
+
   const sortedMails = useMemo(() => {
     const getValue = (mail: MailRecord) => {
       if (sortBy === "company") return mail.applicationId?.jobId?.jobCompany?.toLowerCase() ?? "";
@@ -72,14 +100,31 @@ export default function MailsPage() {
       return new Date(mail.updatedAt).getTime();
     };
 
-    return [...mails].sort((a, b) => {
+    return [...filteredMails].sort((a, b) => {
       const aValue = getValue(a);
       const bValue = getValue(b);
       if (aValue === bValue) return 0;
       const result = aValue > bValue ? 1 : -1;
       return sortDir === "asc" ? result : -result;
     });
-  }, [mails, sortBy, sortDir]);
+  }, [filteredMails, sortBy, sortDir]);
+
+  const totalPages = Math.max(1, Math.ceil(sortedMails.length / PAGE_SIZE));
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [tableSearch, globalQuery, sortBy, sortDir]);
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
+
+  const paginatedMails = useMemo(() => {
+    const start = (currentPage - 1) * PAGE_SIZE;
+    return sortedMails.slice(start, start + PAGE_SIZE);
+  }, [sortedMails, currentPage]);
 
   const handleSaveDraft = async () => {
     if (!previewMail) return;
@@ -140,6 +185,20 @@ export default function MailsPage() {
         <ViewModeToggle value={viewMode} onChange={setViewMode} />
       </div>
 
+      <div className="flex flex-wrap items-center gap-3">
+        <label className="relative w-full max-w-md">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+          <input
+            type="text"
+            value={tableSearch}
+            onChange={(event) => setTableSearch(event.target.value)}
+            placeholder="Search in Mails table..."
+            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 pl-9 text-sm text-slate-700 outline-none focus:border-indigo-300 focus:ring-2 focus:ring-indigo-200"
+          />
+        </label>
+        {globalQuery ? <span className="text-xs text-slate-500">Global filter: <span className="font-medium">{globalQuery}</span></span> : null}
+      </div>
+
       {actionError ? (
         <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
           {actionError}
@@ -149,189 +208,209 @@ export default function MailsPage() {
       {viewMode === "table" ? (
         <div className="overflow-x-auto rounded-2xl border border-white/45 bg-white/70 shadow-[0_16px_46px_rgba(76,48,160,0.14)] backdrop-blur-xl">
           {sortedMails.length === 0 ? (
-            <div className="p-6 text-sm text-gray-500">No mails found.</div>
+            <div className="p-6 text-sm text-gray-500">No mails found for current search.</div>
           ) : (
-            <table className="min-w-275 w-full text-sm">
-              <thead className="bg-white/50 text-slate-600">
-                <tr>
-                  <th className="px-6 py-3 text-left">
-                    <button className="inline-flex items-center gap-1 font-medium hover:underline" onClick={() => handleSort("company")}>
-                      Company <span className="text-xs text-gray-500">{sortIndicator("company")}</span>
-                    </button>
-                  </th>
-                  <th className="px-6 py-3 text-left">
-                    <button className="inline-flex items-center gap-1 font-medium hover:underline" onClick={() => handleSort("role")}>
-                      Role <span className="text-xs text-gray-500">{sortIndicator("role")}</span>
-                    </button>
-                  </th>
-                  <th className="px-6 py-3 text-left">
-                    <button className="inline-flex items-center gap-1 font-medium hover:underline" onClick={() => handleSort("to")}>
-                      To <span className="text-xs text-gray-500">{sortIndicator("to")}</span>
-                    </button>
-                  </th>
-                  <th className="px-6 py-3 text-left">
-                    <button className="inline-flex items-center gap-1 font-medium hover:underline" onClick={() => handleSort("subject")}>
-                      Subject <span className="text-xs text-gray-500">{sortIndicator("subject")}</span>
-                    </button>
-                  </th>
-                  <th className="px-6 py-3 text-left">Preview</th>
-                  <th className="px-6 py-3 text-left">
-                    <button className="inline-flex items-center gap-1 font-medium hover:underline" onClick={() => handleSort("status")}>
-                      Status <span className="text-xs text-gray-500">{sortIndicator("status")}</span>
-                    </button>
-                  </th>
-                  <th className="px-6 py-3 text-left">
-                    <button className="inline-flex items-center gap-1 font-medium hover:underline" onClick={() => handleSort("updatedAt")}>
-                      Updated <span className="text-xs text-gray-500">{sortIndicator("updatedAt")}</span>
-                    </button>
-                  </th>
-                  <th className="px-6 py-3 text-left">Application</th>
-                </tr>
-              </thead>
-              <tbody>
-                {sortedMails.map((mail) => (
-                  <tr key={mail._id} className="border-t border-white/55 transition hover:bg-white/55">
-                    <td className="px-6 py-4 font-medium text-slate-900">
-                      <span className="inline-flex items-center gap-2">
-                        <Building2 className="h-4 w-4 text-indigo-500" />
-                        {mail.applicationId?.jobId?.jobCompany ?? "N/A"}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-slate-700">
-                      <span className="inline-flex items-center gap-2">
-                        <Briefcase className="h-4 w-4 text-blue-500" />
-                        {mail.applicationId?.jobId?.jobProfile ?? "N/A"}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-slate-700">
+            <>
+              <table className="min-w-275 w-full text-sm">
+                <thead className="bg-white/50 text-slate-600">
+                  <tr>
+                    <th className="px-6 py-3 text-left">
+                      <button className="inline-flex items-center gap-1 font-medium hover:underline" onClick={() => handleSort("company")}>
+                        Company <span className="text-xs text-gray-500">{sortIndicator("company")}</span>
+                      </button>
+                    </th>
+                    <th className="px-6 py-3 text-left">
+                      <button className="inline-flex items-center gap-1 font-medium hover:underline" onClick={() => handleSort("role")}>
+                        Role <span className="text-xs text-gray-500">{sortIndicator("role")}</span>
+                      </button>
+                    </th>
+                    <th className="px-6 py-3 text-left">
+                      <button className="inline-flex items-center gap-1 font-medium hover:underline" onClick={() => handleSort("to")}>
+                        To <span className="text-xs text-gray-500">{sortIndicator("to")}</span>
+                      </button>
+                    </th>
+                    <th className="px-6 py-3 text-left">
+                      <button className="inline-flex items-center gap-1 font-medium hover:underline" onClick={() => handleSort("subject")}>
+                        Subject <span className="text-xs text-gray-500">{sortIndicator("subject")}</span>
+                      </button>
+                    </th>
+                    <th className="px-6 py-3 text-left">Preview</th>
+                    <th className="px-6 py-3 text-left">
+                      <button className="inline-flex items-center gap-1 font-medium hover:underline" onClick={() => handleSort("status")}>
+                        Status <span className="text-xs text-gray-500">{sortIndicator("status")}</span>
+                      </button>
+                    </th>
+                    <th className="px-6 py-3 text-left">
+                      <button className="inline-flex items-center gap-1 font-medium hover:underline" onClick={() => handleSort("updatedAt")}>
+                        Updated <span className="text-xs text-gray-500">{sortIndicator("updatedAt")}</span>
+                      </button>
+                    </th>
+                    <th className="px-6 py-3 text-left">Application</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {paginatedMails.map((mail) => (
+                    <tr key={mail._id} className="border-t border-white/55 transition hover:bg-white/55">
+                      <td className="px-6 py-4 font-medium text-slate-900">
+                        <span className="inline-flex items-center gap-2">
+                          <Building2 className="h-4 w-4 text-indigo-500" />
+                          {mail.applicationId?.jobId?.jobCompany ?? "N/A"}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-slate-700">
+                        <span className="inline-flex items-center gap-2">
+                          <Briefcase className="h-4 w-4 text-blue-500" />
+                          {mail.applicationId?.jobId?.jobProfile ?? "N/A"}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-slate-700">
+                        <span className="inline-flex items-center gap-2">
+                          <AtSign className="h-4 w-4 text-violet-500" />
+                          {mail.to}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-slate-700">
+                        <span className="inline-flex items-center gap-2">
+                          <MailOpen className="h-4 w-4 text-cyan-500" />
+                          <span className="line-clamp-2">{mail.subject}</span>
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        <button
+                          onClick={() => {
+                            setActionError(null);
+                            setPreviewMail(mail);
+                          }}
+                          className="text-sm flex justify-center items-center gap-0.5 text-blue-700 cursor-pointer hover:text-blue-900 hover:underline"
+                        >
+                          <Eye className="h-3.5 w-3.5" /> View
+                        </button>
+                      </td>
+                      <td className="px-6 py-4">
+                        <span
+                          className={`rounded-md px-2 py-1 text-xs font-bold ${
+                            mail.status === "SENT"
+                              ? "bg-green-100 text-green-800"
+                              : "bg-yellow-100 text-yellow-800"
+                          }`}
+                        >
+                          {mail.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-gray-500">
+                        <span className="inline-flex items-center gap-2">
+                          <CalendarDays className="h-4 w-4 text-slate-400" />
+                          {new Date(mail.updatedAt).toLocaleDateString()}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4">
+                        {mail.applicationId?._id ? (
+                          <Link
+                            href={`/applications/${mail.applicationId._id}`}
+                            className="inline-flex items-center gap-1 text-blue-700 hover:text-blue-900 hover:underline"
+                          >
+                            <Send className="h-3.5 w-3.5" />
+                            Open
+                          </Link>
+                        ) : (
+                          "N/A"
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+
+              <PaginationControls
+                currentPage={currentPage}
+                totalPages={totalPages}
+                totalItems={sortedMails.length}
+                pageSize={PAGE_SIZE}
+                onPageChange={setCurrentPage}
+              />
+            </>
+          )}
+        </div>
+      ) : (
+        <div className="space-y-4">
+          <div className="grid auto-rows-fr grid-cols-1 gap-4 p-4 sm:p-6 md:grid-cols-2 xl:grid-cols-3">
+            {paginatedMails.map((mail) => (
+              <DataRowCard
+                key={mail._id}
+                title={mail.applicationId?.jobId?.jobCompany ?? "N/A"}
+                subtitle={mail.applicationId?.jobId?.jobProfile ?? "N/A"}
+                icon={<Building2 className="h-4 w-4" />}
+                fieldsColumns={1}
+                className="h-full"
+                badge={
+                  <span
+                    className={`rounded-md px-2 py-1 text-xs font-bold ${
+                      mail.status === "SENT"
+                        ? "bg-green-100 text-green-800"
+                        : "bg-yellow-100 text-yellow-800"
+                    }`}
+                  >
+                    {mail.status}
+                  </span>
+                }
+                fields={[
+                  {
+                    label: "To",
+                    value: (
                       <span className="inline-flex items-center gap-2">
                         <AtSign className="h-4 w-4 text-violet-500" />
                         {mail.to}
                       </span>
-                    </td>
-                    <td className="px-6 py-4 text-slate-700">
+                    ),
+                  },
+                  {
+                    label: "Subject",
+                    value: (
                       <span className="inline-flex items-center gap-2">
                         <MailOpen className="h-4 w-4 text-cyan-500" />
                         <span className="line-clamp-2">{mail.subject}</span>
                       </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      <button
-                        onClick={() => {
-                          setActionError(null);
-                          setPreviewMail(mail);
-                        }}
-                        className="text-sm flex justify-center items-center gap-0.5 text-blue-700 cursor-pointer hover:text-blue-900 hover:underline"
-                      >
-                        <Eye className="h-3.5 w-3.5" /> View
-                      </button>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span
-                        className={`rounded-md px-2 py-1 text-xs font-bold ${
-                          mail.status === "SENT"
-                            ? "bg-green-100 text-green-800"
-                            : "bg-yellow-100 text-yellow-800"
-                        }`}
-                      >
-                        {mail.status}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 text-gray-500">
+                    ),
+                  },
+                  {
+                    label: "Updated",
+                    value: (
                       <span className="inline-flex items-center gap-2">
                         <CalendarDays className="h-4 w-4 text-slate-400" />
                         {new Date(mail.updatedAt).toLocaleDateString()}
                       </span>
-                    </td>
-                    <td className="px-6 py-4">
-                      {mail.applicationId?._id ? (
-                        <Link
-                          href={`/applications/${mail.applicationId._id}`}
-                          className="inline-flex items-center gap-1 text-blue-700 hover:text-blue-900 hover:underline"
-                        >
-                          <Send className="h-3.5 w-3.5" />
-                          Open
-                        </Link>
-                      ) : (
-                        "N/A"
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </div>
-      ) : (
-        <div className="grid auto-rows-fr grid-cols-1 gap-4 p-4 sm:p-6 md:grid-cols-2 xl:grid-cols-3">
-          {sortedMails.map((mail) => (
-            <DataRowCard
-              key={mail._id}
-              title={mail.applicationId?.jobId?.jobCompany ?? "N/A"}
-              subtitle={mail.applicationId?.jobId?.jobProfile ?? "N/A"}
-              icon={<Building2 className="h-4 w-4" />}
-              fieldsColumns={1}
-              className="h-full"
-              badge={
-                <span
-                  className={`rounded-md px-2 py-1 text-xs font-bold ${
-                    mail.status === "SENT"
-                      ? "bg-green-100 text-green-800"
-                      : "bg-yellow-100 text-yellow-800"
-                  }`}
-                >
-                  {mail.status}
-                </span>
-              }
-              fields={[
-                {
-                  label: "To",
-                  value: (
-                    <span className="inline-flex items-center gap-2">
-                      <AtSign className="h-4 w-4 text-violet-500" />
-                      {mail.to}
-                    </span>
-                  ),
-                },
-                {
-                  label: "Subject",
-                  value: (
-                    <span className="inline-flex items-center gap-2">
-                      <MailOpen className="h-4 w-4 text-cyan-500" />
-                      <span className="line-clamp-2">{mail.subject}</span>
-                    </span>
-                  ),
-                },
-                {
-                  label: "Updated",
-                  value: (
-                    <span className="inline-flex items-center gap-2">
-                      <CalendarDays className="h-4 w-4 text-slate-400" />
-                      {new Date(mail.updatedAt).toLocaleDateString()}
-                    </span>
-                  ),
-                },
-              ]}
-              actions={
-                <>
-                  <button
-                    onClick={() => {
-                      setActionError(null);
-                      setPreviewMail(mail);
-                    }}
-                    className="text-sm flex justify-center items-center gap-0.5 text-blue-700 cursor-pointer hover:text-blue-900 hover:underline"
-                  >
-                    <Eye className="h-3.5 w-3.5" /> View
-                  </button>
-                  {mail.applicationId?._id ? (
-                    <Link href={`/applications/${mail.applicationId._id}`} className="text-sm flex items-center justify-center gap-0.5 text-blue-700 hover:text-blue-900 hover:underline">
-                      <Send className="h-3.5 w-3.5" /> Open
-                    </Link>
-                  ) : null}
-                </>
-              }
-            />
-          ))}
+                    ),
+                  },
+                ]}
+                actions={
+                  <>
+                    <button
+                      onClick={() => {
+                        setActionError(null);
+                        setPreviewMail(mail);
+                      }}
+                      className="text-sm flex justify-center items-center gap-0.5 text-blue-700 cursor-pointer hover:text-blue-900 hover:underline"
+                    >
+                      <Eye className="h-3.5 w-3.5" /> View
+                    </button>
+                    {mail.applicationId?._id ? (
+                      <Link href={`/applications/${mail.applicationId._id}`} className="text-sm flex items-center justify-center gap-0.5 text-blue-700 hover:text-blue-900 hover:underline">
+                        <Send className="h-3.5 w-3.5" /> Open
+                      </Link>
+                    ) : null}
+                  </>
+                }
+              />
+            ))}
+          </div>
+
+          <PaginationControls
+            currentPage={currentPage}
+            totalPages={totalPages}
+            totalItems={sortedMails.length}
+            pageSize={PAGE_SIZE}
+            onPageChange={setCurrentPage}
+          />
         </div>
       )}
 

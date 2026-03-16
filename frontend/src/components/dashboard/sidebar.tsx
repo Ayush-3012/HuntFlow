@@ -10,6 +10,7 @@ import {
   Mail,
   MessageSquare,
   Orbit,
+  Plus,
   Settings,
   Sparkles,
 } from "lucide-react";
@@ -93,6 +94,26 @@ function SidebarContent({
           Space mode active
         </div>
       )}
+
+      <div className="relative my-4">
+        <div className="group relative">
+          <Link
+            href="/jobs/new"
+            title="Add Job"
+            className={`rounded-xl border border-white/25 bg-white/12 px-3 py-2 font-medium text-white transition-all hover:bg-white/20 ${
+              collapsed
+                ? "flex items-center justify-center"
+                : "flex items-center gap-2"
+            }`}
+          >
+            <span className="grid h-7 w-7 place-items-center rounded-lg bg-white/20">
+              <Plus size={16} />
+            </span>
+            {collapsed ? null : "Add Job"}
+          </Link>
+          {showCollapsedTooltip ? <HoverLabel label="Add Job" /> : null}
+        </div>
+      </div>
 
       <nav className="relative space-y-2">
         {navItems.map((item) => {
