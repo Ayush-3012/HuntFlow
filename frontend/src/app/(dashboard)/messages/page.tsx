@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import {
   Briefcase,
   Building2,
@@ -28,6 +28,14 @@ type MessageSortKey = "company" | "role" | "message" | "updatedAt";
 const PAGE_SIZE = 9;
 
 export default function MessagesPage() {
+  return (
+    <Suspense fallback={<HourglassLoader label="Loading messages..." />}>
+      <MessagesPageContent />
+    </Suspense>
+  );
+}
+
+function MessagesPageContent() {
   const searchParams = useSearchParams();
   const globalQuery = (searchParams.get("q") ?? "").trim();
 

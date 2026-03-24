@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import {
   Briefcase,
   Building2,
@@ -28,6 +28,14 @@ import { buildSearchTokens, matchesSearchTokens } from "@/lib/search";
 const PAGE_SIZE = 9;
 
 export default function JobsPage() {
+  return (
+    <Suspense fallback={<HourglassLoader label="Loading jobs..." />}>
+      <JobsPageContent />
+    </Suspense>
+  );
+}
+
+function JobsPageContent() {
   const searchParams = useSearchParams();
   const globalQuery = (searchParams.get("q") ?? "").trim();
 

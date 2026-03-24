@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import {
   Briefcase,
   Building2,
@@ -42,6 +42,14 @@ type ResumeRow = {
 const PAGE_SIZE = 9;
 
 export default function ResumesPage() {
+  return (
+    <Suspense fallback={<HourglassLoader label="Loading resumes..." />}>
+      <ResumesPageContent />
+    </Suspense>
+  );
+}
+
+function ResumesPageContent() {
   const searchParams = useSearchParams();
   const globalQuery = (searchParams.get("q") ?? "").trim();
 

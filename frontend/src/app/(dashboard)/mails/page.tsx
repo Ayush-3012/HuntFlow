@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import {
   AtSign,
   Briefcase,
@@ -30,6 +30,14 @@ type MailSortKey = "company" | "role" | "to" | "subject" | "status" | "updatedAt
 const PAGE_SIZE = 9;
 
 export default function MailsPage() {
+  return (
+    <Suspense fallback={<HourglassLoader label="Loading mails..." />}>
+      <MailsPageContent />
+    </Suspense>
+  );
+}
+
+function MailsPageContent() {
   const searchParams = useSearchParams();
   const globalQuery = (searchParams.get("q") ?? "").trim();
 

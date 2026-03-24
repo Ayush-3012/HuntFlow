@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useMemo, useState } from "react";
+import { Suspense, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Building2, CalendarDays, FileText, Search, Send, Trash2 } from "lucide-react";
 import { Application, ApplicationStatus } from "@/types/application";
@@ -41,6 +41,26 @@ type ApplicationsTableProps = {
 };
 
 export default function ApplicationsTable({
+  applications,
+  onDelete,
+  deletingId,
+  viewMode,
+  onViewModeChange,
+}: ApplicationsTableProps) {
+  return (
+    <Suspense fallback={<div className="p-4 text-sm text-slate-500">Loading applications...</div>}>
+      <ApplicationsTableContent
+        applications={applications}
+        onDelete={onDelete}
+        deletingId={deletingId}
+        viewMode={viewMode}
+        onViewModeChange={onViewModeChange}
+      />
+    </Suspense>
+  );
+}
+
+function ApplicationsTableContent({
   applications,
   onDelete,
   deletingId,

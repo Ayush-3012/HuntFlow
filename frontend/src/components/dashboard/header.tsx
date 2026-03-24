@@ -2,8 +2,8 @@
 
 import type { ComponentType } from "react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import {
   Briefcase,
   FileText,
@@ -49,45 +49,6 @@ export default function Header({
   onToggleDesktopSidebar,
 }: HeaderProps) {
   const pathname = usePathname();
-  const router = useRouter();
-  const [globalSearch, setGlobalSearch] = useState("");
-  const [currentGlobalQuery, setCurrentGlobalQuery] = useState("");
-  const [searchParamsString, setSearchParamsString] = useState("");
-
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-
-    const params = new URLSearchParams(window.location.search);
-    const initialQuery = params.get("q") ?? "";
-
-    setCurrentGlobalQuery(initialQuery);
-    setGlobalSearch(initialQuery);
-    setSearchParamsString(params.toString());
-  }, [pathname]);
-
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      if (globalSearch === currentGlobalQuery) return;
-
-      const params = new URLSearchParams(searchParamsString);
-      const trimmed = globalSearch.trim();
-
-      if (trimmed) {
-        params.set("q", trimmed);
-      } else {
-        params.delete("q");
-      }
-
-      const queryString = params.toString();
-      router.replace(queryString ? `${pathname}?${queryString}` : pathname, {
-        scroll: false,
-      });
-      setCurrentGlobalQuery(trimmed);
-      setSearchParamsString(queryString);
-    }, 250);
-
-    return () => clearTimeout(timeout);
-  }, [globalSearch, currentGlobalQuery, pathname, router, searchParamsString]);
 
   const meta = getPageMeta(pathname);
   const PageIcon = meta.icon;
@@ -115,16 +76,9 @@ export default function Header({
         </div>
 
         <div className="flex min-w-72 flex-1 items-center justify-end gap-3">
-          <label className="relative w-full max-w-sm">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-            <input
-              type="text"
-              value={globalSearch}
-              onChange={(e) => setGlobalSearch(e.target.value)}
-              placeholder="Global search across tables..."
-              className="w-full rounded-lg border border-slate-200 bg-white/90 py-2 pl-9 pr-3 text-sm text-slate-700 outline-none focus:border-indigo-300 focus:ring-2 focus:ring-indigo-200"
-            />
-          </label>
+          <Suspense fallback={<GlobalSearchFallback />}>
+            <GlobalSearchInput pathname={pathname} />
+          </Suspense>
 
           <Link
             href="/applications/new"
@@ -136,5 +90,54 @@ export default function Header({
         </div>
       </div>
     </header>
+  );
+}
+
+function GlobalSearchInput({ pathname }: { pathname: string }) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const globalQuery = searchParams.get("q") ?? "";
+
+  const onQueryChange = (value: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    const trimmed = value.trim();
+
+    if (trimmed) {
+      params.set("q", trimmed);
+    } else {
+      params.delete("q");
+    }
+
+    const queryString = params.toString();
+    router.replace(queryString ? `${pathname}?${queryString}` : pathname, {
+      scroll: false,
+    });
+  };
+
+  return (
+    <label className="relative w-full max-w-sm">
+      <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+      <input
+        type="text"
+        value={globalQuery}
+        onChange={(event) => onQueryChange(event.target.value)}
+        placeholder="Global search across tables..."
+        className="w-full rounded-lg border border-slate-200 bg-white/90 py-2 pl-9 pr-3 text-sm text-slate-700 outline-none focus:border-indigo-300 focus:ring-2 focus:ring-indigo-200"
+      />
+    </label>
+  );
+}
+
+function GlobalSearchFallback() {
+  return (
+    <label className="relative w-full max-w-sm">
+      <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+      <input
+        type="text"
+        disabled
+        placeholder="Global search across tables..."
+        className="w-full rounded-lg border border-slate-200 bg-white/90 py-2 pl-9 pr-3 text-sm text-slate-700 outline-none"
+      />
+    </label>
   );
 }
