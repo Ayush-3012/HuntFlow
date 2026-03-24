@@ -2,8 +2,8 @@
 
 import type { ComponentType } from "react";
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import {
   Briefcase,
   FileText,
@@ -50,15 +50,20 @@ export default function Header({
 }: HeaderProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const searchParamsString = searchParams.toString();
-  const currentGlobalQuery = useMemo(() => searchParams.get("q") ?? "", [searchParams]);
-
-  const [globalSearch, setGlobalSearch] = useState(currentGlobalQuery);
+  const [globalSearch, setGlobalSearch] = useState("");
+  const [currentGlobalQuery, setCurrentGlobalQuery] = useState("");
+  const [searchParamsString, setSearchParamsString] = useState("");
 
   useEffect(() => {
-    setGlobalSearch(currentGlobalQuery);
-  }, [currentGlobalQuery]);
+    if (typeof window === "undefined") return;
+
+    const params = new URLSearchParams(window.location.search);
+    const initialQuery = params.get("q") ?? "";
+
+    setCurrentGlobalQuery(initialQuery);
+    setGlobalSearch(initialQuery);
+    setSearchParamsString(params.toString());
+  }, [pathname]);
 
   useEffect(() => {
     const timeout = setTimeout(() => {
@@ -77,6 +82,8 @@ export default function Header({
       router.replace(queryString ? `${pathname}?${queryString}` : pathname, {
         scroll: false,
       });
+      setCurrentGlobalQuery(trimmed);
+      setSearchParamsString(queryString);
     }, 250);
 
     return () => clearTimeout(timeout);
